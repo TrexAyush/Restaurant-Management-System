@@ -4,7 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import { config } from './config/database';
+import { testConnection, closeConnection } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { performanceMiddleware } from './middleware/performanceMiddleware';
@@ -87,33 +87,55 @@ app.use(errorHandler);
 
 // Start server only if this file is run directly
 if (require.main === module) {
-  httpServer.listen(PORT, () => {
-    console.log(`🚀 Restaurant Management System server running on port ${PORT}`);
-    console.log(`📊 Health check available at http://localhost:${PORT}/health`);
-    console.log(`🔌 WebSocket server initialized for real-time updates`);
-    console.log(`📈 Performance monitoring started`);
-    
-    // Record initial system health
-    monitoringService.recordSystemHealth('server', 'healthy', 'Server started successfully');
-  });
+  // Test database connection before starting server
+  testConnection()
+    .then(() => {
+      httpServer.listen(PORT, () => {
+        console.log(`🚀 Restaurant Management System server running on port ${PORT}`);
+        console.log(`📊 Health check available at http://localhost:${PORT}/health`);
+        console.log(`🔌 WebSocket server initialized for real-time updates`);
+        console.log(`📈 Performance monitoring started`);
+        
+        // Record initial system health
+        monitoringService.recordSystemHealth('server', 'healthy', 'Server started successfully');
+      });
+    })
+    .catch((error) => {
+      console.error('❌ Failed to start server due to database connection error:', error);
+      process.exit(1);
+    });
 
   // Graceful shutdown
   process.on('SIGTERM', () => {
     console.log('SIGTERM received, shutting down gracefully');
     clearInterval(monitoringInterval);
-    httpServer.close(() => {
-      console.log('Server closed');
-      process.exit(0);
-    });
+    closeConnection()
+      .then(() => {
+        httpServer.close(() => {
+          console.log('Server closed');
+          process.exit(0);
+        });
+      })
+      .catch((error) => {
+        console.error('Error during shutdown:', error);
+        process.exit(1);
+      });
   });
 
   process.on('SIGINT', () => {
     console.log('SIGINT received, shutting down gracefully');
     clearInterval(monitoringInterval);
-    httpServer.close(() => {
-      console.log('Server closed');
-      process.exit(0);
-    });
+    closeConnection()
+      .then(() => {
+        httpServer.close(() => {
+          console.log('Server closed');
+          process.exit(0);
+        });
+      })
+      .catch((error) => {
+        console.error('Error during shutdown:', error);
+        process.exit(1);
+      });
   });
 }
 
