@@ -66,6 +66,9 @@ frontend/*.tsbuildinfo
 backend/.npm
 frontend/.npm
 
+backend/package-lock.json
+frontend/package-lock.json
+
 # Optional eslint cache
 backend/.eslintcache
 frontend/.eslintcache
