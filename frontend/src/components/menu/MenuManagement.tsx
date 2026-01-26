@@ -63,7 +63,7 @@ export const MenuManagement: React.FC = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h3" component="h1" gutterBottom align="center">
+      <Typography variant="h4" component="h1" gutterBottom align="left">
         Menu Management
       </Typography>
       

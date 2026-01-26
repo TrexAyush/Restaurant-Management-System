@@ -39,7 +39,6 @@ import {
 import { menuService } from '../../services/menuService';
 import {
   MenuCategory,
-  MenuItem,
   MenuItemWithCategory,
   CreateMenuItemRequest,
   UpdateMenuItemRequest,
