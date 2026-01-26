@@ -53,8 +53,16 @@ const dashboardCards: DashboardCard[] = [
     description: 'Create and manage customer orders',
     icon: <ShoppingCart sx={{ fontSize: 40 }} />,
     path: '/orders',
-    roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER, UserRole.KITCHEN_STAFF],
+    roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER],
     color: '#f57c00'
+  },
+  {
+    title: 'Kitchen Display',
+    description: 'View and manage kitchen orders',
+    icon: <Restaurant sx={{ fontSize: 40 }} />,
+    path: '/kitchen',
+    roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.KITCHEN_STAFF],
+    color: '#00796b'
   },
   {
     title: 'Billing',

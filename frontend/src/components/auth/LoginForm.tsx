@@ -52,7 +52,11 @@ export const LoginForm: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        bgcolor: 'grey.100'
+        bgcolor: 'grey.100',
+        backgroundImage: 'url(/images/background.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        p: 2
       }}
     >
       <Paper
@@ -61,7 +65,8 @@ export const LoginForm: React.FC = () => {
           p: 4,
           width: '100%',
           maxWidth: 400,
-          mx: 2
+          mx: 2,
+          borderRadius: 6,
         }}
       >
         <Typography variant="h4" component="h1" gutterBottom align="center">
@@ -81,28 +86,32 @@ export const LoginForm: React.FC = () => {
           <TextField
             fullWidth
             label="Username"
+            placeholder='Enter Your Username!'
             value={credentials.username}
             onChange={handleChange('username')}
             margin="normal"
-            required
+            error ={!!error}
             autoFocus
             disabled={isLoading}
+            size='small'
           />
           <TextField
             fullWidth
             label="Password"
             type="password"
+            placeholder='Enter Your Password!'
             value={credentials.password}
             onChange={handleChange('password')}
             margin="normal"
-            required
             disabled={isLoading}
+            size='small'
+            error ={!!error}
           />
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            sx={{ mt: 3, mb: 2, color: "#373c3c", fontWeight: "500", backgroundColor: "#F9C483" }}
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >

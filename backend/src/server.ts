@@ -1,5 +1,4 @@
 import express from 'express';
-import { createServer } from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -8,7 +7,6 @@ import { testConnection, closeConnection } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import { performanceMiddleware } from './middleware/performanceMiddleware';
-import { initializeWebSocketService } from './services/websocketService';
 import { monitoringService } from './services/monitoringService';
 import authRoutes from './routes/authRoutes';
 import menuRoutes from './routes/menuRoutes';
@@ -20,11 +18,8 @@ import reportingRoutes from './routes/reportingRoutes';
 import monitoringRoutes from './routes/monitoringRoutes';
 
 const app = express();
-const httpServer = createServer(app);
+const server = require('http').createServer(app);
 const PORT = process.env.PORT || 3001;
-
-// Initialize WebSocket service
-const websocketService = initializeWebSocketService(httpServer);
 
 // Start periodic monitoring
 const monitoringInterval = monitoringService.startPeriodicMonitoring(60000); // Every minute
@@ -90,10 +85,9 @@ if (require.main === module) {
   // Test database connection before starting server
   testConnection()
     .then(() => {
-      httpServer.listen(PORT, () => {
+      server.listen(PORT, () => {
         console.log(`🚀 Restaurant Management System server running on port ${PORT}`);
         console.log(`📊 Health check available at http://localhost:${PORT}/health`);
-        console.log(`🔌 WebSocket server initialized for real-time updates`);
         console.log(`📈 Performance monitoring started`);
         
         // Record initial system health
@@ -111,7 +105,7 @@ if (require.main === module) {
     clearInterval(monitoringInterval);
     closeConnection()
       .then(() => {
-        httpServer.close(() => {
+        server.close(() => {
           console.log('Server closed');
           process.exit(0);
         });
@@ -127,7 +121,7 @@ if (require.main === module) {
     clearInterval(monitoringInterval);
     closeConnection()
       .then(() => {
-        httpServer.close(() => {
+        server.close(() => {
           console.log('Server closed');
           process.exit(0);
         });

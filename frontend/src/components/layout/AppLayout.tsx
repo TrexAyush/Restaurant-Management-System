@@ -30,10 +30,8 @@ import {
   AccountCircle,
   Logout,
   Dashboard,
-  MonitorHeart
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { WebSocketStatus } from '../common';
 import { UserRole } from '../../types/auth';
 
 const drawerWidth = 240;
@@ -68,7 +66,13 @@ const navigationItems: NavigationItem[] = [
     label: 'Orders',
     path: '/orders',
     icon: <ShoppingCart />,
-    roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER, UserRole.KITCHEN_STAFF]
+    roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER]
+  },
+  {
+    label: 'Kitchen Display',
+    path: '/kitchen',
+    icon: <Restaurant />,
+    roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.KITCHEN_STAFF]
   },
   {
     label: 'Billing',
@@ -86,12 +90,6 @@ const navigationItems: NavigationItem[] = [
     label: 'Reports',
     path: '/reports',
     icon: <Analytics />,
-    roles: [UserRole.ADMIN, UserRole.MANAGER]
-  },
-  {
-    label: 'System Monitoring',
-    path: '/monitoring',
-    icon: <MonitorHeart />,
     roles: [UserRole.ADMIN, UserRole.MANAGER]
   },
   {
@@ -144,7 +142,7 @@ export const AppLayout: React.FC = () => {
 
   const drawer = (
     <Box>
-      <Toolbar>
+      <Toolbar  sx={{backgroundColor : "#1976d2", minHeight: 56}}>
         <Typography variant="h6" noWrap component="div">
           🍽️ RMS
         </Typography>
@@ -196,7 +194,6 @@ export const AppLayout: React.FC = () => {
           
           {user && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <WebSocketStatus />
               <Chip
                 label={user.role.replace('_', ' ').toUpperCase()}
                 color={getRoleColor(user.role)}
@@ -207,7 +204,7 @@ export const AppLayout: React.FC = () => {
                 onClick={handleProfileMenuOpen}
                 startIcon={<AccountCircle />}
               >
-                {user.firstName} {user.lastName}
+                {user && user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user ? user.username : 'Loading...'}
               </Button>
             </Box>
           )}

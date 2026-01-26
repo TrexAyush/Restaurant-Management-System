@@ -1,6 +1,6 @@
-import { 
-  Order, 
-  CreateOrderRequest, 
+import {
+  Order,
+  CreateOrderRequest,
   UpdateOrderRequest,
   UpdateOrderStatusRequest,
   validateCreateOrderRequest,
@@ -13,7 +13,6 @@ import { orderRepository, OrderSearchFilters } from '../repositories/orderReposi
 import { menuService } from './menuService';
 import { tableService } from './tableService';
 import { inventoryService } from './inventoryService';
-import { getWebSocketService } from './websocketService';
 import { trackDatabaseQuery } from '../middleware/performanceMiddleware';
 import { monitoringService } from './monitoringService';
 
@@ -112,14 +111,6 @@ export class OrderService {
       }
     }
 
-    // Broadcast order creation via WebSocket
-    try {
-      const wsService = getWebSocketService();
-      wsService.broadcastOrderCreated(order, createdBy);
-    } catch (error) {
-      console.warn('Failed to broadcast order creation:', error);
-    }
-
     return order;
   }
 
@@ -147,14 +138,6 @@ export class OrderService {
     const updatedOrder = await orderRepository.updateOrder(id, updateData);
     if (!updatedOrder) {
       throw new Error('Failed to update order');
-    }
-
-    // Broadcast order update via WebSocket
-    try {
-      const wsService = getWebSocketService();
-      wsService.broadcastOrderUpdated(updatedOrder, updatedBy);
-    } catch (error) {
-      console.warn('Failed to broadcast order update:', error);
     }
 
     return updatedOrder;
@@ -202,22 +185,6 @@ export class OrderService {
       }
     }
 
-    // Broadcast status update via WebSocket
-    // Requirement 4.5: Status update propagation to all users
-    try {
-      const wsService = getWebSocketService();
-      wsService.broadcastOrderStatusUpdate({
-        orderId: id,
-        order: updatedOrder,
-        previousStatus: existingOrder.status,
-        newStatus: statusData.status,
-        timestamp: new Date(),
-        updatedBy
-      });
-    } catch (error) {
-      console.warn('Failed to broadcast order status update:', error);
-    }
-
     return updatedOrder;
   }
 
@@ -244,14 +211,6 @@ export class OrderService {
     const updatedOrder = await orderRepository.deleteOrderItem(orderId, itemId);
     if (!updatedOrder) {
       throw new Error('Failed to delete order item');
-    }
-
-    // Broadcast order update via WebSocket
-    try {
-      const wsService = getWebSocketService();
-      wsService.broadcastOrderUpdated(updatedOrder, deletedBy);
-    } catch (error) {
-      console.warn('Failed to broadcast order update:', error);
     }
 
     return updatedOrder;

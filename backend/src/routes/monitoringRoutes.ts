@@ -54,13 +54,6 @@ router.get('/metrics', monitoringController.getPerformanceMetrics);
 router.get('/errors', monitoringController.getErrorLogs);
 
 /**
- * @route GET /api/monitoring/websocket
- * @desc Get WebSocket connection status and metrics
- * @access Admin, Manager
- */
-router.get('/websocket', monitoringController.getWebSocketStatus);
-
-/**
  * @route GET /api/monitoring/stats
  * @desc Get comprehensive system statistics dashboard
  * @query timeRange - Time range in milliseconds (default: 3600000)

@@ -36,7 +36,6 @@ export const KitchenDisplay: React.FC = () => {
 
   useEffect(() => {
     loadKitchenOrders();
-    
     // Auto-refresh every 30 seconds
     const interval = setInterval(loadKitchenOrders, 30000);
     return () => clearInterval(interval);
@@ -161,7 +160,7 @@ export const KitchenDisplay: React.FC = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <TableIcon fontSize="small" />
                       <Typography variant="h6">
-                        Table {order.table.number}
+                        Table {order.table?.number || 'Unknown'}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -177,7 +176,7 @@ export const KitchenDisplay: React.FC = () => {
                       <React.Fragment key={item.id}>
                         <ListItem disablePadding>
                           <ListItemText
-                            primary={`${item.quantity}x ${item.menuItem.name}`}
+                            primary={`${item.quantity}x ${item.menuItem?.name}`}
                             secondary={item.specialInstructions}
                           />
                         </ListItem>
@@ -229,7 +228,7 @@ export const KitchenDisplay: React.FC = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <TableIcon fontSize="small" />
                       <Typography variant="h6">
-                        Table {order.table.number}
+                        Table {order.table?.number || 'Unknown'}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -245,7 +244,7 @@ export const KitchenDisplay: React.FC = () => {
                       <React.Fragment key={item.id}>
                         <ListItem disablePadding>
                           <ListItemText
-                            primary={`${item.quantity}x ${item.menuItem.name}`}
+                            primary={`${item?.quantity}x ${item.menuItem?.name}`}
                             secondary={item.specialInstructions}
                           />
                         </ListItem>
@@ -298,7 +297,7 @@ export const KitchenDisplay: React.FC = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <TableIcon fontSize="small" />
                       <Typography variant="h6">
-                        Table {order.table.number}
+                        Table {order.table?.number || 'Unknown'}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

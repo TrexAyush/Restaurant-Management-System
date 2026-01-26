@@ -19,13 +19,6 @@ const router = Router();
 router.get('/', authenticate, trackSession, tableController.getTables.bind(tableController));
 
 /**
- * @route GET /api/tables/websocket-status
- * @desc Get WebSocket connection status and statistics
- * @access Private (Manager only)
- */
-router.get('/websocket-status', authenticate, trackSession, requireManager, tableController.getWebSocketStatus.bind(tableController));
-
-/**
  * @route GET /api/tables/statistics
  * @desc Get table statistics
  * @access Private (Manager only)

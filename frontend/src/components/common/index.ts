@@ -1,1 +1,2 @@
-export { WebSocketStatus } from './WebSocketStatus';
+// Common components
+export { Logo } from './Logo';

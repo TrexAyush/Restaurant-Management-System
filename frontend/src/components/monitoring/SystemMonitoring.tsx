@@ -56,7 +56,6 @@ interface SystemStats {
     apiResponseTime: PerformanceMetric;
     databaseQueryTime: PerformanceMetric;
     memoryUsage: PerformanceMetric;
-    webSocketConnections: PerformanceMetric;
   };
   errors: {
     error: number;
@@ -76,18 +75,11 @@ interface ErrorLog {
   metadata?: Record<string, any>;
 }
 
-interface WebSocketStatus {
-  connectedUsers: number;
-  usersByRole: Record<string, number>;
-  timestamp: string;
-}
-
 export const SystemMonitoring: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [systemStats, setSystemStats] = useState<SystemStats | null>(null);
   const [errorLogs, setErrorLogs] = useState<ErrorLog[]>([]);
-  const [wsStatus, setWsStatus] = useState<WebSocketStatus | null>(null);
   const [timeRange, setTimeRange] = useState(3600000); // 1 hour
   const [errorLevel, setErrorLevel] = useState<'error' | 'warning' | 'info' | ''>('');
 
@@ -113,21 +105,11 @@ export const SystemMonitoring: React.FC = () => {
     }
   };
 
-  const fetchWebSocketStatus = async () => {
-    try {
-      const response = await axios.get('/api/monitoring/websocket');
-      setWsStatus(response.data.data);
-    } catch (error) {
-      console.error('Failed to fetch WebSocket status:', error);
-    }
-  };
-
   const fetchAllData = async () => {
     setLoading(true);
     await Promise.all([
       fetchSystemStats(),
-      fetchErrorLogs(),
-      fetchWebSocketStatus()
+      fetchErrorLogs()
     ]);
     setLoading(false);
   };
@@ -204,7 +186,6 @@ export const SystemMonitoring: React.FC = () => {
         <Tab label="Overview" />
         <Tab label="Performance" />
         <Tab label="Error Logs" />
-        <Tab label="WebSocket Status" />
       </Tabs>
 
       {activeTab === 0 && systemStats && (
@@ -279,36 +260,6 @@ export const SystemMonitoring: React.FC = () => {
             </Card>
           </Grid>
 
-          {/* WebSocket Status */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Real-time Connections
-                </Typography>
-                {wsStatus && (
-                  <Box>
-                    <Box display="flex" alignItems="center" gap={2} mb={2}>
-                      <Wifi color="primary" />
-                      <Typography variant="h4">
-                        {wsStatus.connectedUsers}
-                      </Typography>
-                      <Typography variant="body2">Connected Users</Typography>
-                    </Box>
-                    <Grid container spacing={1}>
-                      {Object.entries(wsStatus.usersByRole).map(([role, count]) => (
-                        <Grid size={{ xs: 6 }} key={role}>
-                          <Typography variant="body2">
-                            {role.replace('_', ' ')}: {count}
-                          </Typography>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
         </Grid>
       )}
 
@@ -481,54 +432,6 @@ export const SystemMonitoring: React.FC = () => {
             </Table>
           </TableContainer>
         </Box>
-      )}
-
-      {activeTab === 3 && wsStatus && (
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Connection Overview
-                </Typography>
-                <Box display="flex" alignItems="center" gap={2} mb={2}>
-                  <Wifi color="primary" fontSize="large" />
-                  <Box>
-                    <Typography variant="h4">{wsStatus.connectedUsers}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Connected Users
-                    </Typography>
-                  </Box>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Last updated: {new Date(wsStatus.timestamp).toLocaleString()}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Users by Role
-                </Typography>
-                <Grid container spacing={2}>
-                  {Object.entries(wsStatus.usersByRole).map(([role, count]) => (
-                    <Grid size={{ xs: 6 }} key={role}>
-                      <Box>
-                        <Typography variant="h5">{count}</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {role.replace('_', ' ').toUpperCase()}
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
       )}
     </Box>
   );

@@ -26,7 +26,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@types/socket.io": "^3.0.1",
     "@types/uuid": "^10.0.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -40,9 +39,7 @@
     "morgan": "^1.10.0",
     "pdfkit": "^0.13.0",
     "pg": "^8.11.3",
-    "socket.io": "^4.8.3",
-    "uuid": "^13.0.0",
-    "ws": "^8.14.2"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.5",

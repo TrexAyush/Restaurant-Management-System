@@ -24,8 +24,32 @@ export class AuthService {
   }
 
   static getCurrentUser(): User | null {
-    const userStr = localStorage.getItem('currentUser');
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      if (!userStr) return null;
+      
+      const user = JSON.parse(userStr);
+      
+      // Basic validation of required fields
+      if (!user || 
+          typeof user.id !== 'string' ||
+          typeof user.username !== 'string' ||
+          typeof user.firstName !== 'string' ||
+          typeof user.lastName !== 'string' ||
+          typeof user.email !== 'string' ||
+          typeof user.role !== 'string' ||
+          typeof user.isActive !== 'boolean') {
+        // Invalid data, remove it
+        localStorage.removeItem('currentUser');
+        return null;
+      }
+      
+      return user;
+    } catch (error) {
+      // If parsing fails, remove corrupted data
+      localStorage.removeItem('currentUser');
+      return null;
+    }
   }
 
   static getToken(): string | null {
@@ -33,7 +57,17 @@ export class AuthService {
   }
 
   static isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+    
+    try {
+      // Decode token without verification to check expiration
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+      return payload.exp > currentTime;
+    } catch (error) {
+      return false;
+    }
   }
 
   static async getProfile(): Promise<User> {

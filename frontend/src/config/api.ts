@@ -41,9 +41,11 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized access
+    // Don't auto-redirect on 401 for profile endpoint - let AuthContext handle it
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/profile')) {
+      // Handle unauthorized access for non-profile endpoints
       localStorage.removeItem('authToken');
+      localStorage.removeItem('currentUser');
       window.location.href = '/login';
     }
     

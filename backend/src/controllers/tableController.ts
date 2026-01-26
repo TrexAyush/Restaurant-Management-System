@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { tableService } from '../services/tableService';
-import { getWebSocketService } from '../services/websocketService';
-import { 
-  CreateTableRequest, 
-  UpdateTableRequest, 
-  UpdateTableStatusRequest 
+import {
+  CreateTableRequest,
+  UpdateTableRequest,
+  UpdateTableStatusRequest
 } from '../models/Table';
 import { TableStatus } from '../models/enums';
 import { PaginationParams, ApiResponse } from '../models';
@@ -647,38 +646,6 @@ export class TableController {
       const response: ApiResponse<null> = {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to get table occupancy summary'
-      };
-      res.status(500).json(response);
-    }
-  }
-
-  /**
-   * Get WebSocket connection status and statistics
-   */
-  async getWebSocketStatus(req: Request, res: Response): Promise<void> {
-    try {
-      const wsService = getWebSocketService();
-      const connectedUsers = wsService.getConnectedUsersCount();
-      const usersByRole = wsService.getConnectedUsersByRole();
-
-      const response: ApiResponse<{
-        connectedUsers: number;
-        usersByRole: Record<string, number>;
-        status: string;
-      }> = {
-        success: true,
-        data: {
-          connectedUsers,
-          usersByRole,
-          status: 'active'
-        }
-      };
-
-      res.status(200).json(response);
-    } catch (error) {
-      const response: ApiResponse<null> = {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to get WebSocket status'
       };
       res.status(500).json(response);
     }

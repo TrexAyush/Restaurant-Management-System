@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { monitoringService } from '../services/monitoringService';
-import { getWebSocketService } from '../services/websocketService';
 
 export class MonitoringController {
   /**
@@ -119,42 +118,6 @@ export class MonitoringController {
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve error logs'
-      });
-    }
-  }
-
-  /**
-   * Get WebSocket status and metrics
-   */
-  async getWebSocketStatus(req: Request, res: Response): Promise<void> {
-    try {
-      const wsService = getWebSocketService();
-      const connectedUsers = wsService.getConnectedUsersCount();
-      const usersByRole = wsService.getConnectedUsersByRole();
-      
-      // Record WebSocket connection count as a metric
-      monitoringService.recordWebSocketConnections(connectedUsers);
-      
-      res.status(200).json({
-        success: true,
-        data: {
-          connectedUsers,
-          usersByRole,
-          timestamp: new Date()
-        }
-      });
-    } catch (error) {
-      monitoringService.logError(
-        'error',
-        'Failed to get WebSocket status',
-        error as Error,
-        (req as any).user?.userId,
-        'GET /api/monitoring/websocket'
-      );
-      
-      res.status(500).json({
-        success: false,
-        error: 'Failed to retrieve WebSocket status'
       });
     }
   }

@@ -1,6 +1,6 @@
-import { 
-  Table, 
-  CreateTableRequest, 
+import {
+  Table,
+  CreateTableRequest,
   UpdateTableRequest,
   UpdateTableStatusRequest,
   validateCreateTableRequest,
@@ -12,7 +12,6 @@ import {
 import { TableStatus } from '../models/enums';
 import { PaginationParams, PaginatedResponse } from '../models';
 import { tableRepository, TableSearchFilters } from '../repositories/tableRepository';
-import { getWebSocketService } from './websocketService';
 
 export class TableService {
 
@@ -57,14 +56,6 @@ export class TableService {
     }
 
     const table = await tableRepository.createTable(tableData);
-
-    // Broadcast table creation via WebSocket
-    try {
-      const wsService = getWebSocketService();
-      wsService.broadcastTableCreated(table, createdBy);
-    } catch (error) {
-      console.warn('Failed to broadcast table creation:', error);
-    }
 
     return table;
   }
@@ -124,28 +115,6 @@ export class TableService {
       throw new Error('Failed to update table');
     }
 
-    // Broadcast updates via WebSocket
-    try {
-      const wsService = getWebSocketService();
-      
-      // Broadcast status update if status changed
-      if (updateData.status && updateData.status !== existingTable.status) {
-        wsService.broadcastTableStatusUpdate({
-          tableId: id,
-          table: updatedTable,
-          timestamp: new Date(),
-          updatedBy
-        });
-      }
-
-      // Broadcast capacity modification if capacity changed
-      if (updateData.capacity && updateData.capacity !== oldCapacity) {
-        wsService.broadcastTableCapacityModified(updatedTable, oldCapacity, updatedBy);
-      }
-    } catch (error) {
-      console.warn('Failed to broadcast table update:', error);
-    }
-
     return updatedTable;
   }
 
@@ -196,19 +165,6 @@ export class TableService {
       throw new Error('Failed to update table status');
     }
 
-    // Broadcast status update via WebSocket
-    try {
-      const wsService = getWebSocketService();
-      wsService.broadcastTableStatusUpdate({
-        tableId: id,
-        table: updatedTable,
-        timestamp: new Date(),
-        updatedBy
-      });
-    } catch (error) {
-      console.warn('Failed to broadcast table status update:', error);
-    }
-
     return updatedTable;
   }
 
@@ -228,14 +184,6 @@ export class TableService {
     }
 
     await tableRepository.deleteTable(id);
-
-    // Broadcast table deletion via WebSocket
-    try {
-      const wsService = getWebSocketService();
-      wsService.broadcastTableDeleted(id, existingTable.number, deletedBy);
-    } catch (error) {
-      console.warn('Failed to broadcast table deletion:', error);
-    }
   }
 
   /**
@@ -290,21 +238,6 @@ export class TableService {
     }
 
     const updatedTable = await this.updateTableStatus(tableId, statusData, seatedBy);
-
-    // Broadcast occupancy update via WebSocket
-    try {
-      const wsService = getWebSocketService();
-      wsService.broadcastTableOccupancyUpdate({
-        tableId,
-        table: updatedTable,
-        partySize,
-        orderId,
-        timestamp: new Date(),
-        updatedBy: seatedBy
-      });
-    } catch (error) {
-      console.warn('Failed to broadcast table occupancy update:', error);
-    }
 
     return updatedTable;
   }
