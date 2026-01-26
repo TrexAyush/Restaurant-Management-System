@@ -204,6 +204,56 @@ export class AuthService {
     const { passwordHash, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
+
+  /**
+   * Update user information (Admin or self)
+   */
+  async updateUser(userId: string, updateData: Partial<CreateUserRequest>): Promise<User> {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Check if username is being changed and already exists
+    if (updateData.username && updateData.username !== user.username) {
+      const existingUser = await userRepository.findByUsername(updateData.username);
+      if (existingUser) {
+        throw new Error('Username already exists');
+      }
+    }
+
+    // Check if email is being changed and already exists
+    if (updateData.email && updateData.email !== user.email) {
+      const existingEmail = await userRepository.findByEmail(updateData.email);
+      if (existingEmail) {
+        throw new Error('Email already exists');
+      }
+    }
+
+    // Prepare update data
+    const dataToUpdate: any = {};
+    if (updateData.firstName !== undefined) dataToUpdate.firstName = updateData.firstName;
+    if (updateData.lastName !== undefined) dataToUpdate.lastName = updateData.lastName;
+    if (updateData.email !== undefined) dataToUpdate.email = updateData.email;
+    if (updateData.role !== undefined) dataToUpdate.role = updateData.role;
+    const updatedUser = await userRepository.update(userId, dataToUpdate);
+    if (!updatedUser) {
+      throw new Error('Failed to update user');
+    }
+
+    return updatedUser;
+  }
+
+  /**
+   * Delete user (soft delete)
+   */
+  async deleteUser(userId: string): Promise<void> {
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    await userRepository.hardDelete(userId);
+  }
 }
 
 // Export singleton instance

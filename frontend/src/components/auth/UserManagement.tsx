@@ -13,14 +13,11 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Switch,
-  FormControlLabel,
   Alert,
-  IconButton,
   Chip
 } from '@mui/material';
 import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
-import { Add, Edit, Delete } from '@mui/icons-material';
+import { Add, Edit, Delete, Lock, LockOpen } from '@mui/icons-material';
 import { User, UserRole, CreateUserRequest, UpdateUserRequest } from '../../types/auth';
 import { AuthService } from '../../services/authService';
 
@@ -81,6 +78,22 @@ export const UserManagement: React.FC = () => {
     setDialogOpen(true);
   };
 
+  const handleToggleUserStatus = async (user: User) => {
+    const action = user.isActive ? 'deactivate' : 'activate';
+    if (window.confirm(`Are you sure you want to ${action} this user?`)) {
+      try {
+        if (user.isActive) {
+          await AuthService.deactivateUser(user.id);
+        } else {
+          await AuthService.activateUser(user.id);
+        }
+        await loadUsers();
+      } catch (err: any) {
+        setError(err.response?.data?.error?.message || `Failed to ${action} user`);
+      }
+    }
+  };
+
   const handleDeleteUser = async (userId: string) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
@@ -95,25 +108,78 @@ export const UserManagement: React.FC = () => {
   const handleSubmit = async () => {
     try {
       setError('');
-      
+
+      // Validate required fields
+      if (!formData.firstName.trim()) {
+        setError('First name is required');
+        return;
+      }
+      if (!formData.lastName.trim()) {
+        setError('Last name is required');
+        return;
+      }
+      if (!formData.email.trim()) {
+        setError('Email is required');
+        return;
+      }
+      if (!formData.role) {
+        setError('Role is required');
+        return;
+      }
+
       if (editingUser) {
         // Update existing user
+        if (!formData.email.includes('@')) {
+          setError('Please enter a valid email address');
+          return;
+        }
+
         const updateData: UpdateUserRequest = {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim(),
           role: formData.role
         };
         await AuthService.updateUser(editingUser.id, updateData);
       } else {
         // Create new user
-        await AuthService.createUser(formData);
+        // Additional validation for create
+        if (!formData.username.trim()) {
+          setError('Username is required');
+          return;
+        }
+        if (formData.username.length < 3) {
+          setError('Username must be at least 3 characters');
+          return;
+        }
+        if (!formData.password) {
+          setError('Password is required');
+          return;
+        }
+        if (formData.password.length < 8) {
+          setError('Password must be at least 8 characters');
+          return;
+        }
+        if (!formData.email.includes('@')) {
+          setError('Please enter a valid email address');
+          return;
+        }
+
+        const createData: CreateUserRequest = {
+          username: formData.username.trim(),
+          password: formData.password,
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim(),
+          role: formData.role
+        };
+        await AuthService.createUser(createData);
       }
       
       setDialogOpen(false);
       await loadUsers();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to save user');
+      setError(err.response?.data?.error?.details?.[0] || err.response?.data?.error?.message || 'Failed to save user');
     }
   };
 
@@ -161,12 +227,17 @@ export const UserManagement: React.FC = () => {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      width: 120,
+      width: 150,
       getActions: (params) => [
         <GridActionsCellItem
           icon={<Edit />}
           label="Edit"
           onClick={() => handleEditUser(params.row)}
+        />,
+        <GridActionsCellItem
+          icon={params.row.isActive ? <Lock /> : <LockOpen />}
+          label={params.row.isActive ? 'Deactivate' : 'Activate'}
+          onClick={() => handleToggleUserStatus(params.row)}
         />,
         <GridActionsCellItem
           icon={<Delete />}

@@ -280,6 +280,194 @@ export class AuthController {
   }
 
   /**
+   * Update user endpoint (Admin or self)
+   */
+  async updateUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+
+      // Validate ID
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'User ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      // Validate update data is not empty
+      if (!updateData || Object.keys(updateData).length === 0) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'At least one field must be provided for update',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      const updatedUser = await authService.updateUser(id, updateData);
+
+      // Remove password hash from response
+      const { passwordHash, ...userWithoutPassword } = updatedUser;
+
+      res.status(200).json({
+        success: true,
+        data: userWithoutPassword,
+        message: 'User updated successfully',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update user';
+      const statusCode = errorMessage.includes('not found') ? 404 : 400;
+      
+      res.status(statusCode).json({
+        error: {
+          code: 'USER_UPDATE_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
+  /**
+   * Delete user endpoint (Admin only) - Soft delete
+   */
+  async deleteUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      // Validate ID
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'User ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      await authService.deleteUser(id);
+
+      res.status(200).json({
+        success: true,
+        message: 'User deleted successfully',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete user';
+      const statusCode = errorMessage.includes('not found') ? 404 : 400;
+      
+      res.status(statusCode).json({
+        error: {
+          code: 'USER_DELETE_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
+  /**
+   * Activate user endpoint (Admin only)
+   */
+  async activateUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      // Validate ID
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'User ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      await authService.activateUser(id);
+
+      res.status(200).json({
+        success: true,
+        message: 'User activated successfully',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to activate user';
+      
+      res.status(400).json({
+        error: {
+          code: 'USER_ACTIVATION_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
+  /**
+   * Deactivate user endpoint (Admin only)
+   */
+  async deactivateUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      // Validate ID
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'User ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      await authService.deactivateUser(id);
+
+      res.status(200).json({
+        success: true,
+        message: 'User deactivated successfully',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to deactivate user';
+      
+      res.status(400).json({
+        error: {
+          code: 'USER_DEACTIVATION_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
+  /**
    * Get active sessions for current user
    */
   async getSessions(req: Request, res: Response): Promise<void> {

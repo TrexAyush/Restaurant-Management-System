@@ -52,6 +52,34 @@ router.get('/users', authenticate, trackSession, requireAdmin, authController.ge
 router.post('/users', authenticate, trackSession, requireAdmin, authController.createUser.bind(authController));
 
 /**
+ * @route PUT /api/auth/users/:id
+ * @desc Update user (Admin or self)
+ * @access Private (Admin or self)
+ */
+router.put('/users/:id', authenticate, trackSession, requireSelfOrAdmin, authController.updateUser.bind(authController));
+
+/**
+ * @route DELETE /api/auth/users/:id
+ * @desc Delete user (Admin only)
+ * @access Private (Admin)
+ */
+router.delete('/users/:id', authenticate, trackSession, requireAdmin, authController.deleteUser.bind(authController));
+
+/**
+ * @route POST /api/auth/users/:id/activate
+ * @desc Activate user (Admin only)
+ * @access Private (Admin)
+ */
+router.post('/users/:id/activate', authenticate, trackSession, requireAdmin, authController.activateUser.bind(authController));
+
+/**
+ * @route POST /api/auth/users/:id/deactivate
+ * @desc Deactivate user (Admin only)
+ * @access Private (Admin)
+ */
+router.post('/users/:id/deactivate', authenticate, trackSession, requireAdmin, authController.deactivateUser.bind(authController));
+
+/**
  * @route GET /api/auth/sessions
  * @desc Get active sessions for current user
  * @access Private

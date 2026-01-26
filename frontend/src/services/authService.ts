@@ -101,4 +101,12 @@ export class AuthService {
   static async deleteUser(userId: string): Promise<void> {
     await apiClient.delete(`/auth/users/${userId}`);
   }
+
+  static async activateUser(userId: string): Promise<void> {
+    await apiClient.post(`/auth/users/${userId}/activate`);
+  }
+
+  static async deactivateUser(userId: string): Promise<void> {
+    await apiClient.post(`/auth/users/${userId}/deactivate`);
+  }
 }

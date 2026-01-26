@@ -12,6 +12,29 @@ export interface CreateUserData {
   isActive: boolean;
 }
 
+export interface DbCreateUserData {
+  username: string;
+  password_hash: string;
+  role: UserRole;
+  first_name: string;
+  last_name: string;
+  email: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface DbUpdateUserData {
+  username?: string;
+  password_hash?: string;
+  role?: UserRole;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  is_active?: boolean;
+  updated_at: Date;
+}
+
 export class UserRepository {
   private readonly tableName = 'users';
 
@@ -19,45 +42,41 @@ export class UserRepository {
    * Find user by ID
    */
   async findById(id: string): Promise<User | null> {
-    const user = await knex(this.tableName)
-      .where({ id })
-      .first();
-
-    return user || null;
+    const user = await knex(this.tableName).where({ id }).first();
+    return user ? this.mapDbUserToModel(user) : null;
   }
 
   /**
    * Find user by username
    */
   async findByUsername(username: string): Promise<User | null> {
-    const user = await knex(this.tableName)
-      .where({ username })
-      .first();
-    return this.mapDbUserToModel(user);
+    const user = await knex(this.tableName).where({ username }).first();
+    return user ? this.mapDbUserToModel(user) : null;
   }
 
   /**
    * Find user by email
    */
   async findByEmail(email: string): Promise<User | null> {
-    const user = await knex(this.tableName)
-      .where({ email })
-      .first();
-
-    return user || null;
+    const user = await knex(this.tableName).where({ email }).first();
+    return user ? this.mapDbUserToModel(user) : null;
   }
 
   /**
    * Create a new user
    */
   async create(userData: CreateUserData): Promise<User> {
-    const [user] = await knex(this.tableName)
-      .insert({
-        ...userData,
-        created_at: new Date(),
-        updated_at: new Date()
-      })
+    const dbData = this.mapModelUserToDb(userData);
+    const result = await knex(this.tableName)
+      .insert(dbData)
       .returning('*');
+
+    // Handle both array and single object returns
+    const user = Array.isArray(result) ? result[0] : result;
+    
+    if (!user) {
+      throw new Error('Failed to create user');
+    }
 
     return this.mapDbUserToModel(user);
   }
@@ -66,14 +85,14 @@ export class UserRepository {
    * Update user information
    */
   async update(id: string, updateData: UpdateUserRequest): Promise<User | null> {
-    const [user] = await knex(this.tableName)
+    const dbData = this.mapModelUpdateUserToDb(updateData);
+    const result = await knex(this.tableName)
       .where({ id })
-      .update({
-        ...updateData,
-        updated_at: new Date()
-      })
+      .update(dbData)
       .returning('*');
 
+    // Handle both array and single object returns
+    const user = Array.isArray(result) ? result[0] : result;
     return user ? this.mapDbUserToModel(user) : null;
   }
 
@@ -178,6 +197,41 @@ export class UserRepository {
       createdAt: new Date(dbUser.created_at),
       updatedAt: new Date(dbUser.updated_at)
     };
+  }
+
+  /**
+   * Map model user object to database format
+   */
+  private mapModelUserToDb(user: CreateUserData): DbCreateUserData {
+    return {
+      username: user.username,
+      password_hash: user.passwordHash,
+      role: user.role,
+      first_name: user.firstName,
+      last_name: user.lastName,
+      email: user.email,
+      is_active: user.isActive,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+  }
+
+  /**
+   * Map model update user object to database format
+   */
+  private mapModelUpdateUserToDb(updateData: UpdateUserRequest): DbUpdateUserData {
+    const dbData: DbUpdateUserData = {
+      updated_at: new Date()
+    };
+
+    if (updateData.username !== undefined) dbData.username = updateData.username;
+    if (updateData.role !== undefined) dbData.role = updateData.role;
+    if (updateData.firstName !== undefined) dbData.first_name = updateData.firstName;
+    if (updateData.lastName !== undefined) dbData.last_name = updateData.lastName;
+    if (updateData.email !== undefined) dbData.email = updateData.email;
+    if (updateData.isActive !== undefined) dbData.is_active = updateData.isActive;
+
+    return dbData;
   }
 }
 
