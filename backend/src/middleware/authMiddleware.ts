@@ -274,6 +274,12 @@ class SessionManager {
 // Export singleton session manager
 export const sessionManager = new SessionManager();
 
+// Periodically clean up expired sessions (every 15 minutes)
+const SESSION_CLEANUP_INTERVAL = 15 * 60 * 1000;
+setInterval(() => {
+  sessionManager.cleanupExpiredSessions();
+}, SESSION_CLEANUP_INTERVAL);
+
 /**
  * Session tracking middleware
  */

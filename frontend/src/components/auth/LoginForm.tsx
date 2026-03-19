@@ -8,6 +8,7 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
+import { toast } from 'react-toastify';
 import { LoginCredentials } from '../../types/auth';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -33,6 +34,7 @@ export const LoginForm: React.FC = () => {
     } catch (err: any) {
       const errorMessage = err.response?.data?.error?.message || err.message || 'Login failed. Please check your credentials.';
       setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -67,13 +69,41 @@ export const LoginForm: React.FC = () => {
           maxWidth: 400,
           mx: 2,
           borderRadius: 6,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'rgba(255, 255, 255, 0.9)',
         }}
       >
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          🍽️ RMS Login
+        <Box sx={{
+          width: 360,
+          height: 120,
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          mt: -2,
+          ml: -4
+        }}>
+          <Box
+            component="img"
+            src="/images/logo/LogoTrans2.png"
+            alt="RMS Logo"
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              transform: 'scale(1.8)', // 👈 zoom factor
+              transformOrigin: 'center',
+            }}
+          />
+        </Box>
+        <Typography variant="h5" component="h1" align="center" sx={{ fontWeight: 'bold', mt: -4, mb: 2 }}>
+          Login
         </Typography>
-        <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-          Restaurant Management System
+        <Typography variant="body1" color="text.secondary" align="center" sx={{ mb: 2 , mx: 4}}>
+          Hey, Enter your credentials to access your account
         </Typography>
 
         {error && (
@@ -90,10 +120,12 @@ export const LoginForm: React.FC = () => {
             value={credentials.username}
             onChange={handleChange('username')}
             margin="normal"
-            error ={!!error}
+            error={!!error}
             autoFocus
             disabled={isLoading}
             size='small'
+            color='secondary'
+            variant="outlined"
           />
           <TextField
             fullWidth
@@ -105,13 +137,15 @@ export const LoginForm: React.FC = () => {
             margin="normal"
             disabled={isLoading}
             size='small'
-            error ={!!error}
+            error={!!error}
+            color='secondary'
+            variant="outlined"
           />
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2, color: "#373c3c", fontWeight: "500", backgroundColor: "#F9C483" }}
+            sx={{ mt: 2, mb: 2, color: "#4C4C4C", fontWeight: "500", backgroundColor: "#F9C483", boxShadow: "none", }}
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} /> : null}
           >
@@ -120,7 +154,7 @@ export const LoginForm: React.FC = () => {
         </Box>
 
         <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
-          Contact your administrator for account access
+          © 2026 RMS. All rights reserved.
         </Typography>
       </Paper>
     </Box>

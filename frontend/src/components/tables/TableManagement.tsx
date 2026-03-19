@@ -33,6 +33,8 @@ import { Table, TableStatus, CreateTableRequest, UpdateTableRequest } from '../.
 import { TableService } from '../../services/tableService';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types/auth';
+import { toast } from 'react-toastify';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 interface TableFormData {
   number: number;
@@ -52,6 +54,9 @@ export const TableManagement: React.FC = () => {
     status: TableStatus.AVAILABLE
   });
   const [submitting, setSubmitting] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({
+    open: false, title: '', message: '', onConfirm: () => {}
+  });
   const { user } = useAuth();
 
   const canManageTables = user && [UserRole.ADMIN, UserRole.MANAGER].includes(user.role);
@@ -94,15 +99,24 @@ export const TableManagement: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const handleDeleteTable = async (tableId: string) => {
-    if (window.confirm('Are you sure you want to delete this table?')) {
-      try {
-        await TableService.deleteTable(tableId);
-        await loadTables();
-      } catch (err: any) {
-        setError(err.response?.data?.error?.message || 'Failed to delete table');
+  const handleDeleteTable = (tableId: string) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Table',
+      message: 'Are you sure you want to delete this table?',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        try {
+          await TableService.deleteTable(tableId);
+          toast.success('Table deleted successfully');
+          await loadTables();
+        } catch (err: any) {
+          const msg = err.response?.data?.error?.message || 'Failed to delete table';
+          setError(msg);
+          toast.error(msg);
+        }
       }
-    }
+    });
   };
 
   const handleSubmit = async () => {
@@ -126,9 +140,12 @@ export const TableManagement: React.FC = () => {
       }
 
       setDialogOpen(false);
+      toast.success(editingTable ? 'Table updated successfully' : 'Table created successfully');
       await loadTables();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to save table');
+      const msg = err.response?.data?.error?.message || 'Failed to save table';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -406,6 +423,13 @@ export const TableManagement: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+      />
     </Box>
   );
 };

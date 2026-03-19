@@ -215,6 +215,92 @@ export class MenuController {
     }
   }
 
+  /**
+   * Activate menu category
+   */
+  async activateCategory(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Category ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      const category = await menuService.activateCategory(id);
+
+      res.status(200).json({
+        success: true,
+        data: category,
+        message: 'Category activated successfully',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to activate category';
+      const statusCode = errorMessage.includes('not found') ? 404 : 400;
+      
+      res.status(statusCode).json({
+        error: {
+          code: 'CATEGORY_ACTIVATION_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
+  /**
+   * Deactivate menu category
+   */
+  async deactivateCategory(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Category ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      const category = await menuService.deactivateCategory(id);
+
+      res.status(200).json({
+        success: true,
+        data: category,
+        message: 'Category deactivated successfully',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to deactivate category';
+      const statusCode = errorMessage.includes('not found') ? 404 : 400;
+      
+      res.status(statusCode).json({
+        error: {
+          code: 'CATEGORY_DEACTIVATION_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
   // Menu Item Management Endpoints
 
   /**
@@ -644,11 +730,139 @@ export class MenuController {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete menu item';
-      const statusCode = errorMessage.includes('not found') ? 404 : 500;
+      const statusCode = errorMessage.includes('not found') ? 404 : 400;
       
       res.status(statusCode).json({
         error: {
-          code: 'MENU_ITEM_DELETION_FAILED',
+          code: 'MENU_ITEM_DELETE_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
+  /**
+   * Permanently delete menu item (hard delete)
+   */
+  async permanentlyDeleteMenuItem(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Menu item ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      await menuService.permanentlyDeleteMenuItem(id);
+
+      res.status(200).json({
+        success: true,
+        message: 'Menu item permanently deleted',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to permanently delete menu item';
+      const statusCode = errorMessage.includes('not found') ? 404 : 400;
+      
+      res.status(statusCode).json({
+        error: {
+          code: 'MENU_ITEM_PERMANENT_DELETE_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
+  /**
+   * Activate menu item
+   */
+  async activateMenuItem(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Menu item ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      const item = await menuService.activateMenuItem(id);
+
+      res.status(200).json({
+        success: true,
+        data: item,
+        message: 'Menu item activated successfully',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to activate menu item';
+      const statusCode = errorMessage.includes('not found') ? 404 : 400;
+      
+      res.status(statusCode).json({
+        error: {
+          code: 'MENU_ITEM_ACTIVATION_FAILED',
+          message: errorMessage,
+          timestamp: new Date().toISOString(),
+          requestId: req.headers['x-request-id'] || 'unknown'
+        }
+      });
+    }
+  }
+
+  /**
+   * Deactivate menu item
+   */
+  async deactivateMenuItem(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        res.status(400).json({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Menu item ID is required',
+            timestamp: new Date().toISOString(),
+            requestId: req.headers['x-request-id'] || 'unknown'
+          }
+        });
+        return;
+      }
+
+      const item = await menuService.deactivateMenuItem(id);
+
+      res.status(200).json({
+        success: true,
+        data: item,
+        message: 'Menu item deactivated successfully',
+        timestamp: new Date().toISOString()
+      });
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to deactivate menu item';
+      const statusCode = errorMessage.includes('not found') ? 404 : 400;
+      
+      res.status(statusCode).json({
+        error: {
+          code: 'MENU_ITEM_DEACTIVATION_FAILED',
           message: errorMessage,
           timestamp: new Date().toISOString(),
           requestId: req.headers['x-request-id'] || 'unknown'
@@ -662,13 +876,13 @@ export class MenuController {
    */
   async searchMenuItems(req: Request, res: Response): Promise<void> {
     try {
-      const searchTerm = req.query.q as string;
-
+      const searchTerm = req.query.search as string;
+      
       if (!searchTerm || searchTerm.trim().length === 0) {
         res.status(400).json({
           error: {
             code: 'VALIDATION_ERROR',
-            message: 'Search term (q) is required and cannot be empty',
+            message: 'Search term is required',
             timestamp: new Date().toISOString(),
             requestId: req.headers['x-request-id'] || 'unknown'
           }
@@ -676,70 +890,21 @@ export class MenuController {
         return;
       }
 
-      if (searchTerm.trim().length < 2) {
-        res.status(400).json({
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Search term must be at least 2 characters long',
-            timestamp: new Date().toISOString(),
-            requestId: req.headers['x-request-id'] || 'unknown'
-          }
-        });
-        return;
-      }
-
-      // Parse and validate pagination parameters
       const page = req.query.page ? parseInt(req.query.page as string) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
       const sortBy = req.query.sortBy as string || 'name';
       const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'asc';
 
-      if (page < 1 || limit < 1 || limit > 100) {
-        res.status(400).json({
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Invalid pagination parameters',
-            timestamp: new Date().toISOString(),
-            requestId: req.headers['x-request-id'] || 'unknown'
-          }
-        });
-        return;
-      }
-
-      const pagination: PaginationParams = { page, limit, sortBy, sortOrder };
-
-      // Parse additional filters
-      const filters: Omit<MenuItemSearchFilters, 'searchTerm'> = {};
-      
-      if (req.query.categoryId) {
-        filters.categoryId = req.query.categoryId as string;
-      }
-      
-      if (req.query.isAvailable !== undefined) {
-        filters.isAvailable = req.query.isAvailable === 'true';
-      }
-      
-      if (req.query.priceMin) {
-        const priceMin = parseFloat(req.query.priceMin as string);
-        if (!isNaN(priceMin) && priceMin >= 0) {
-          filters.priceMin = priceMin;
-        }
-      }
-      
-      if (req.query.priceMax) {
-        const priceMax = parseFloat(req.query.priceMax as string);
-        if (!isNaN(priceMax) && priceMax >= 0) {
-          filters.priceMax = priceMax;
-        }
-      }
-
-      const result = await menuService.searchMenuItems(searchTerm.trim(), filters, pagination);
+      const result = await menuService.searchMenuItems(
+        searchTerm,
+        {},
+        { page, limit, sortBy, sortOrder }
+      );
 
       res.status(200).json({
         success: true,
         data: result.data,
         pagination: result.pagination,
-        searchTerm: searchTerm.trim(),
         timestamp: new Date().toISOString()
       });
 

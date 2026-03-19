@@ -41,10 +41,24 @@ router.put('/categories/:id', authenticate, trackSession, requireManager, menuCo
 
 /**
  * @route DELETE /api/menu/categories/:id
- * @desc Delete menu category
+ * @desc Delete menu category (soft delete)
  * @access Private (Manager only)
  */
 router.delete('/categories/:id', authenticate, trackSession, requireManager, menuController.deleteCategory.bind(menuController));
+
+/**
+ * @route POST /api/menu/categories/:id/activate
+ * @desc Activate menu category
+ * @access Private (Manager only)
+ */
+router.post('/categories/:id/activate', authenticate, trackSession, requireManager, menuController.activateCategory.bind(menuController));
+
+/**
+ * @route POST /api/menu/categories/:id/deactivate
+ * @desc Deactivate menu category
+ * @access Private (Manager only)
+ */
+router.post('/categories/:id/deactivate', authenticate, trackSession, requireManager, menuController.deactivateCategory.bind(menuController));
 
 // Menu Item Management Routes
 
@@ -117,5 +131,26 @@ router.put('/items/:id/availability', authenticate, trackSession, requireManager
  * @access Private (Manager only)
  */
 router.delete('/items/:id', authenticate, trackSession, requireManager, menuController.deleteMenuItem.bind(menuController));
+
+/**
+ * @route DELETE /api/menu/items/:id/permanent
+ * @desc Permanently delete menu item (hard delete)
+ * @access Private (Manager only)
+ */
+router.delete('/items/:id/permanent', authenticate, trackSession, requireManager, menuController.permanentlyDeleteMenuItem.bind(menuController));
+
+/**
+ * @route POST /api/menu/items/:id/activate
+ * @desc Activate menu item
+ * @access Private (Manager only)
+ */
+router.post('/items/:id/activate', authenticate, trackSession, requireManager, menuController.activateMenuItem.bind(menuController));
+
+/**
+ * @route POST /api/menu/items/:id/deactivate
+ * @desc Deactivate menu item
+ * @access Private (Manager only)
+ */
+router.post('/items/:id/deactivate', authenticate, trackSession, requireManager, menuController.deactivateMenuItem.bind(menuController));
 
 export default router;

@@ -2,11 +2,13 @@ import { Router } from 'express';
 import { orderController } from '../controllers/orderController';
 import { 
   authenticate, 
+  authorize,
   requireManager, 
   requireManagerOrWaiter,
   requireKitchenStaff,
   trackSession 
 } from '../middleware/authMiddleware';
+import { UserRole } from '../models/enums';
 
 const router = Router();
 
@@ -50,9 +52,9 @@ router.get('/ready', authenticate, trackSession, requireManagerOrWaiter, orderCo
 /**
  * @route GET /api/orders/status/:status
  * @desc Get orders by status
- * @access Private (Manager or Waiter)
+ * @access Private (Manager, Waiter, or Cashier)
  */
-router.get('/status/:status', authenticate, trackSession, requireManagerOrWaiter, orderController.getOrdersByStatus.bind(orderController));
+router.get('/status/:status', authenticate, trackSession, authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER, UserRole.CASHIER), orderController.getOrdersByStatus.bind(orderController));
 
 /**
  * @route GET /api/orders/table/:tableId
@@ -101,7 +103,7 @@ router.put('/:id', authenticate, trackSession, requireManagerOrWaiter, orderCont
  * @desc Update order status
  * @access Private (Kitchen Staff for preparing/ready, Waiter for served, Manager for all)
  */
-router.put('/:id/status', authenticate, trackSession, orderController.updateOrderStatus.bind(orderController));
+router.put('/:id/status', authenticate, trackSession, authorize(UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER, UserRole.KITCHEN_STAFF), orderController.updateOrderStatus.bind(orderController));
 
 /**
  * @route PUT /api/orders/:id/start-preparing

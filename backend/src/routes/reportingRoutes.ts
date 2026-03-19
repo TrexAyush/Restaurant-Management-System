@@ -55,6 +55,14 @@ router.get('/revenue', authenticate, trackSession, requireManager, reportingCont
 router.get('/dashboard', authenticate, trackSession, requireManager, reportingController.getDashboardSummary.bind(reportingController));
 
 /**
+ * @route GET /api/reports/recent-orders
+ * @desc Get recent orders for dashboard display
+ * @access Private (Manager or Waiter)
+ * @query limit - Optional limit for number of orders (default: 10, max: 100)
+ */
+router.get('/recent-orders', authenticate, trackSession, reportingController.getRecentOrders.bind(reportingController));
+
+/**
  * @route GET /api/reports/performance
  * @desc Get performance metrics
  * @access Private (Admin only)

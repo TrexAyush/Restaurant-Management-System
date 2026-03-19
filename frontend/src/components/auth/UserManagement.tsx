@@ -20,11 +20,16 @@ import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import { Add, Edit, Delete, Lock, LockOpen } from '@mui/icons-material';
 import { User, UserRole, CreateUserRequest, UpdateUserRequest } from '../../types/auth';
 import { AuthService } from '../../services/authService';
+import { toast } from 'react-toastify';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 export const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({
+    open: false, title: '', message: '', onConfirm: () => {}
+  });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [formData, setFormData] = useState<CreateUserRequest>({
@@ -78,31 +83,49 @@ export const UserManagement: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const handleToggleUserStatus = async (user: User) => {
+  const handleToggleUserStatus = (user: User) => {
     const action = user.isActive ? 'deactivate' : 'activate';
-    if (window.confirm(`Are you sure you want to ${action} this user?`)) {
-      try {
-        if (user.isActive) {
-          await AuthService.deactivateUser(user.id);
-        } else {
-          await AuthService.activateUser(user.id);
+    setConfirmDialog({
+      open: true,
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
+      message: `Are you sure you want to ${action} this user?`,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        try {
+          if (user.isActive) {
+            await AuthService.deactivateUser(user.id);
+          } else {
+            await AuthService.activateUser(user.id);
+          }
+          toast.success(`User ${action}d successfully`);
+          await loadUsers();
+        } catch (err: any) {
+          const msg = err.response?.data?.error?.message || `Failed to ${action} user`;
+          setError(msg);
+          toast.error(msg);
         }
-        await loadUsers();
-      } catch (err: any) {
-        setError(err.response?.data?.error?.message || `Failed to ${action} user`);
       }
-    }
+    });
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await AuthService.deleteUser(userId);
-        await loadUsers();
-      } catch (err: any) {
-        setError(err.response?.data?.error?.message || 'Failed to delete user');
+  const handleDeleteUser = (userId: string) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete User',
+      message: 'Are you sure you want to delete this user?',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        try {
+          await AuthService.deleteUser(userId);
+          toast.success('User deleted successfully');
+          await loadUsers();
+        } catch (err: any) {
+          const msg = err.response?.data?.error?.message || 'Failed to delete user';
+          setError(msg);
+          toast.error(msg);
+        }
       }
-    }
+    });
   };
 
   const handleSubmit = async () => {
@@ -177,9 +200,12 @@ export const UserManagement: React.FC = () => {
       }
       
       setDialogOpen(false);
+      toast.success(editingUser ? 'User updated successfully' : 'User created successfully');
       await loadUsers();
     } catch (err: any) {
-      setError(err.response?.data?.error?.details?.[0] || err.response?.data?.error?.message || 'Failed to save user');
+      const msg = err.response?.data?.error?.details?.[0] || err.response?.data?.error?.message || 'Failed to save user';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -356,6 +382,13 @@ export const UserManagement: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+      />
     </Box>
   );
 };

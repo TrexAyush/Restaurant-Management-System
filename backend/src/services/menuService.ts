@@ -330,6 +330,74 @@ export class MenuService {
       }
     };
   }
+
+  /**
+   * Activate menu category
+   */
+  async activateCategory(id: string): Promise<MenuCategory> {
+    const category = await menuRepository.findCategoryById(id);
+    if (!category) {
+      throw new Error('Category not found');
+    }
+
+    const updated = await menuRepository.updateCategory(id, { isActive: true });
+    if (!updated) {
+      throw new Error('Failed to activate category');
+    }
+
+    return updated;
+  }
+
+  /**
+   * Deactivate menu category
+   */
+  async deactivateCategory(id: string): Promise<MenuCategory> {
+    const category = await menuRepository.findCategoryById(id);
+    if (!category) {
+      throw new Error('Category not found');
+    }
+
+    const updated = await menuRepository.updateCategory(id, { isActive: false });
+    if (!updated) {
+      throw new Error('Failed to deactivate category');
+    }
+
+    return updated;
+  }
+
+  /**
+   * Activate menu item
+   */
+  async activateMenuItem(id: string): Promise<MenuItem> {
+    const item = await menuRepository.findMenuItemById(id);
+    if (!item) {
+      throw new Error('Menu item not found');
+    }
+
+    const updated = await menuRepository.updateMenuItem(id, { isAvailable: true });
+    if (!updated) {
+      throw new Error('Failed to activate menu item');
+    }
+
+    return updated;
+  }
+
+  /**
+   * Deactivate menu item
+   */
+  async deactivateMenuItem(id: string): Promise<MenuItem> {
+    const item = await menuRepository.findMenuItemById(id);
+    if (!item) {
+      throw new Error('Menu item not found');
+    }
+
+    const updated = await menuRepository.updateMenuItem(id, { isAvailable: false });
+    if (!updated) {
+      throw new Error('Failed to deactivate menu item');
+    }
+
+    return updated;
+  }
 }
 
 // Export singleton instance

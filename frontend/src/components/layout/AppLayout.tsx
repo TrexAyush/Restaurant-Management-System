@@ -18,19 +18,7 @@ import {
   Chip,
   Divider
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Restaurant,
-  TableRestaurant,
-  ShoppingCart,
-  Receipt,
-  Inventory,
-  Analytics,
-  People,
-  AccountCircle,
-  Logout,
-  Dashboard,
-} from '@mui/icons-material';
+import { BookOpenTextIcon, ForkKnifeIcon, GaugeIcon, ListChecksIcon, ReceiptIcon, SignOutIcon, SpeedometerIcon, StoolIcon, TextIndentIcon, UserCircleIcon, UsersIcon, WarehouseIcon } from '@phosphor-icons/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types/auth';
 
@@ -47,55 +35,61 @@ const navigationItems: NavigationItem[] = [
   {
     label: 'Dashboard',
     path: '/dashboard',
-    icon: <Dashboard />,
+    icon: <SpeedometerIcon size={24} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER, UserRole.KITCHEN_STAFF, UserRole.CASHIER]
   },
   {
     label: 'Menu Management',
     path: '/menu',
-    icon: <Restaurant />,
+    icon: <BookOpenTextIcon size={24} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN, UserRole.MANAGER]
   },
   {
     label: 'Table Management',
     path: '/tables',
-    icon: <TableRestaurant />,
+    icon: <StoolIcon size={24} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER]
   },
   {
-    label: 'Orders',
+    label: 'Order Management',
     path: '/orders',
-    icon: <ShoppingCart />,
+    icon: <ListChecksIcon size={23} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.WAITER]
   },
   {
     label: 'Kitchen Display',
     path: '/kitchen',
-    icon: <Restaurant />,
+    icon: <ForkKnifeIcon size={24} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.KITCHEN_STAFF]
   },
   {
     label: 'Billing',
     path: '/billing',
-    icon: <Receipt />,
+    icon: <ReceiptIcon size={24} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN, UserRole.MANAGER, UserRole.CASHIER]
   },
   {
     label: 'Inventory',
     path: '/inventory',
-    icon: <Inventory />,
+    icon: <WarehouseIcon size={24} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN, UserRole.MANAGER]
   },
   {
     label: 'Reports',
     path: '/reports',
-    icon: <Analytics />,
+    icon: <GaugeIcon size={24} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN, UserRole.MANAGER]
   },
   {
     label: 'User Management',
     path: '/users',
-    icon: <People />,
+    icon: <UsersIcon size={24} color="#4C4C4C" weight="duotone" />,
+    roles: [UserRole.ADMIN]
+  },
+  {
+    label: 'Settings',
+    path: '/settings',
+    icon: <GaugeIcon size={24} color="#4C4C4C" weight="duotone" />,
     roles: [UserRole.ADMIN]
   }
 ];
@@ -142,10 +136,31 @@ export const AppLayout: React.FC = () => {
 
   const drawer = (
     <Box>
-      <Toolbar  sx={{backgroundColor : "#1976d2", minHeight: 56}}>
-        <Typography variant="h6" noWrap component="div">
-          🍽️ RMS
-        </Typography>
+      <Toolbar sx={{ backgroundColor: 'white', minHeight: 56 }}>
+        <Box sx={{
+          width: 360,
+          height: 120,
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          mt: -2,
+          ml: -4,
+          mb: -5
+        }}>
+          <Box
+            component="img"
+            src="/images/logo/LogoTrans2.png"
+            alt="RMS Logo"
+            sx={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              transform: 'scale(1.8)', // 👈 zoom factor
+              transformOrigin: 'center',
+            }}
+          />
+        </Box>
       </Toolbar>
       <Divider />
       <List>
@@ -157,8 +172,13 @@ export const AppLayout: React.FC = () => {
                 navigate(item.path);
                 setMobileOpen(false);
               }}
+              sx={{ mx: 1, borderRadius: 1,
+                '&.Mui-selected': { backgroundColor: 'primary.light', color: 'primary.contrastText' },
+                '&:hover': { backgroundColor: 'primary.light', color: 'primary.contrastText'} ,
+                '&.Mui-selected:hover': { backgroundColor: 'primary.dark', color: 'primary.contrastText'}
+              }}
             >
-              <ListItemIcon>
+              <ListItemIcon sx={{ minWidth: '40px' }}>
                 {item.icon}
               </ListItemIcon>
               <ListItemText primary={item.label} />
@@ -176,6 +196,10 @@ export const AppLayout: React.FC = () => {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
+          backgroundColor: 'white',
+          color: '#4C4C4C',
+          boxShadow: 'none',
+          borderBottom: '1px solid #e0e0e0'
         }}
       >
         <Toolbar>
@@ -186,23 +210,24 @@ export const AppLayout: React.FC = () => {
             onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { sm: 'none' } }}
           >
-            <MenuIcon />
+            <TextIndentIcon size={28} color='#4C4C4C' weight="duotone" />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h5" noWrap component="div" sx={{ flexGrow: 1 }}>
             Restaurant Management System
           </Typography>
-          
+
           {user && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Chip
                 label={user.role.replace('_', ' ').toUpperCase()}
                 color={getRoleColor(user.role)}
                 size="small"
+                variant='outlined'
               />
               <Button
                 color="inherit"
                 onClick={handleProfileMenuOpen}
-                startIcon={<AccountCircle />}
+                startIcon={<UserCircleIcon size={28} color="#4C4C4C" weight="duotone" />}
               >
                 {user && user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user ? user.username : 'Loading...'}
               </Button>
@@ -217,14 +242,14 @@ export const AppLayout: React.FC = () => {
         onClose={handleProfileMenuClose}
       >
         <MenuItem onClick={handleProfileMenuClose}>
-          <ListItemIcon>
-            <AccountCircle fontSize="small" />
+          <ListItemIcon sx={{ minWidth: '28px'}}>
+            <UserCircleIcon size={22} color="#4C4C4C" weight="duotone"/>
           </ListItemIcon>
           Profile
         </MenuItem>
         <MenuItem onClick={handleLogout}>
-          <ListItemIcon>
-            <Logout fontSize="small" />
+          <ListItemIcon sx={{ minWidth: '28px'}}>
+            <SignOutIcon size={22} color='#4c4c4c' weight="duotone" />
           </ListItemIcon>
           Logout
         </MenuItem>

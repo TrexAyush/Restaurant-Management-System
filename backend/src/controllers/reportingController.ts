@@ -8,7 +8,8 @@ import {
   PopularItem,
   PerformanceMetrics
 } from '../services/reportingService';
-import { ApiResponse, DateRange } from '../models';
+import { ApiResponse, DateRange, Order, OrderItem } from '../models';
+import { orderRepository } from '../repositories/orderRepository';
 
 export class ReportingController {
 
@@ -377,6 +378,46 @@ export class ReportingController {
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Failed to generate dashboard summary'
+      } as ApiResponse<null>);
+    }
+  }
+
+  /**
+   * Get recent orders for dashboard display
+   * GET /api/reports/recent-orders
+   */
+  async getRecentOrders(req: Request, res: Response): Promise<void> {
+    try {
+      const limitParam = req.query.limit as string;
+      const limit = limitParam ? parseInt(limitParam) : 10;
+
+      if (isNaN(limit) || limit < 1 || limit > 100) {
+        res.status(400).json({
+          success: false,
+          error: 'Limit must be a number between 1 and 100.'
+        } as ApiResponse<null>);
+        return;
+      }
+
+      // Get recent orders with pagination
+      const result = await orderRepository.findOrdersWithDetails({}, {
+        limit,
+        page: 1,
+        sortBy: 'created_at',
+        sortOrder: 'desc'
+      });
+
+      res.json({
+        success: true,
+        data: result.data,
+        pagination: result.pagination
+      } as any);
+
+    } catch (error) {
+      console.error('Error fetching recent orders:', error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch recent orders'
       } as ApiResponse<null>);
     }
   }

@@ -48,6 +48,8 @@ import {
 import { InventoryService } from '../../services/inventoryService';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types/auth';
+import { toast } from 'react-toastify';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 interface InventoryFormData {
   name: string;
@@ -95,6 +97,9 @@ export const InventoryManagement: React.FC = () => {
   });
   
   const [submitting, setSubmitting] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({
+    open: false, title: '', message: '', onConfirm: () => {}
+  });
   const { user } = useAuth();
 
   const canManageInventory = user && [UserRole.ADMIN, UserRole.MANAGER].includes(user.role);
@@ -159,15 +164,24 @@ export const InventoryManagement: React.FC = () => {
     setItemDialogOpen(true);
   };
 
-  const handleDeleteItem = async (itemId: string) => {
-    if (window.confirm('Are you sure you want to delete this inventory item?')) {
-      try {
-        await InventoryService.deleteItem(itemId);
-        await loadItems();
-      } catch (err: any) {
-        setError(err.response?.data?.error?.message || 'Failed to delete item');
+  const handleDeleteItem = (itemId: string) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Inventory Item',
+      message: 'Are you sure you want to delete this inventory item?',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        try {
+          await InventoryService.deleteItem(itemId);
+          toast.success('Inventory item deleted successfully');
+          await loadItems();
+        } catch (err: any) {
+          const msg = err.response?.data?.error?.message || 'Failed to delete item';
+          setError(msg);
+          toast.error(msg);
+        }
       }
-    }
+    });
   };
 
   const handleItemSubmit = async () => {
@@ -198,9 +212,12 @@ export const InventoryManagement: React.FC = () => {
       }
 
       setItemDialogOpen(false);
+      toast.success(editingItem ? 'Item updated successfully' : 'Item created successfully');
       await loadItems();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to save item');
+      const msg = err.response?.data?.error?.message || 'Failed to save item';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -232,9 +249,12 @@ export const InventoryManagement: React.FC = () => {
 
       await InventoryService.updateStock(updateData);
       setStockUpdateDialogOpen(false);
+      toast.success('Stock updated successfully');
       await loadItems();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to update stock');
+      const msg = err.response?.data?.error?.message || 'Failed to update stock';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -347,7 +367,7 @@ export const InventoryManagement: React.FC = () => {
                 Total Value
               </Typography>
               <Typography variant="h4">
-                ${totalValue.toFixed(2)}
+                ₹{totalValue.toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -413,12 +433,12 @@ export const InventoryManagement: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2">
-                      ${item.costPerUnit.toFixed(2)}
+                      ₹{item.costPerUnit.toFixed(2)}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" fontWeight="medium">
-                      ${(item.currentStock * item.costPerUnit).toFixed(2)}
+                      ₹{(item.currentStock * item.costPerUnit).toFixed(2)}
                     </Typography>
                   </TableCell>
                   <TableCell>
@@ -645,6 +665,13 @@ export const InventoryManagement: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+      />
     </Box>
   );
 };

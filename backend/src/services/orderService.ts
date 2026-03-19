@@ -52,10 +52,10 @@ export class OrderService {
   }
 
   /**
-   * Get orders by status
+   * Get orders by status (includes table details)
    */
-  async getOrdersByStatus(status: OrderStatus): Promise<Order[]> {
-    return orderRepository.findOrdersByStatus(status);
+  async getOrdersByStatus(status: OrderStatus): Promise<any[]> {
+    return orderRepository.findOrdersByStatusWithDetails(status);
   }
 
   /**
@@ -101,14 +101,10 @@ export class OrderService {
 
     // Update table status to occupied if it's not already
     if (table.status === TableStatus.AVAILABLE) {
-      try {
-        await tableService.updateTableStatus(orderData.tableId, {
-          status: TableStatus.OCCUPIED,
-          currentOrderId: order.id
-        }, createdBy);
-      } catch (error) {
-        console.warn('Failed to update table status after order creation:', error);
-      }
+      await tableService.updateTableStatus(orderData.tableId, {
+        status: TableStatus.OCCUPIED,
+        currentOrderId: order.id
+      }, createdBy);
     }
 
     return order;
@@ -173,9 +169,10 @@ export class OrderService {
     // Handle table status updates when order is served
     if (statusData.status === OrderStatus.SERVED) {
       try {
-        // Clear the table's current order reference
         const table = await tableService.getTableById(updatedOrder.tableId);
         if (table && table.currentOrderId === id) {
+          // Clear the current order reference first so the AVAILABLE transition is allowed
+          await tableService.clearCurrentOrder(updatedOrder.tableId);
           await tableService.updateTableStatus(updatedOrder.tableId, {
             status: TableStatus.AVAILABLE
           }, updatedBy);
@@ -290,8 +287,9 @@ export class OrderService {
       }
     });
 
-    const averageOrderValue = allOrders.data.length > 0 
-      ? totalRevenue / ordersByStatus[OrderStatus.SERVED] || 0
+    const servedCount = ordersByStatus[OrderStatus.SERVED];
+    const averageOrderValue = servedCount > 0 
+      ? totalRevenue / servedCount
       : 0;
 
     return {
@@ -305,13 +303,14 @@ export class OrderService {
   /**
    * Get orders for kitchen staff (orders that need preparation)
    */
-  async getKitchenOrders(): Promise<Order[]> {
-    const preparingOrders = await this.getOrdersByStatus(OrderStatus.PREPARING);
-    const placedOrders = await this.getOrdersByStatus(OrderStatus.PLACED);
+  async getKitchenOrders(): Promise<any[]> {
+    const preparingOrders = await orderRepository.findOrdersByStatusWithDetails(OrderStatus.PREPARING);
+    const placedOrders = await orderRepository.findOrdersByStatusWithDetails(OrderStatus.PLACED);
+    const readyOrders = await orderRepository.findOrdersByStatusWithDetails(OrderStatus.READY);
     
     // Return orders that need kitchen attention, sorted by creation time
-    return [...placedOrders, ...preparingOrders].sort(
-      (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+    return [...placedOrders, ...preparingOrders, ...readyOrders].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
   }
 

@@ -27,7 +27,7 @@ export interface BillingConfig {
 
 export class BillingService {
   private config: BillingConfig = {
-    defaultTaxRate: 0.08, // 8% default tax rate
+    defaultTaxRate: 0.05, // 5% GST for restaurant services
     allowBillModification: true,
     requireOrderCompletion: true
   };

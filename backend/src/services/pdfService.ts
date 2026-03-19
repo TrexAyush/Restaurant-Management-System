@@ -55,11 +55,11 @@ export class PDFService {
   };
 
   private defaultRestaurantInfo: RestaurantInfo = {
-    name: 'Restaurant Management System',
-    address: '123 Main Street, City, State 12345',
-    phone: '(555) 123-4567',
-    email: 'info@restaurant.com',
-    taxId: 'TAX123456789'
+    name: 'Spice Garden Restaurant',
+    address: '42 MG Road, Connaught Place, New Delhi 110001',
+    phone: '+91 11 2345 6789',
+    email: 'info@spicegarden.in',
+    taxId: 'GSTIN 07AABCU9603R1ZM'
   };
 
   /**
@@ -318,10 +318,10 @@ export class PDFService {
 
       doc.text(item.quantity.toString(), margins.left + colWidths.item, currentY);
       
-      doc.text(`$${item.unitPrice.toFixed(2)}`, 
+      doc.text(`₹${item.unitPrice.toFixed(2)}`, 
                margins.left + colWidths.item + colWidths.quantity, currentY);
       
-      doc.text(`$${itemTotal.toFixed(2)}`, 
+      doc.text(`₹${itemTotal.toFixed(2)}`, 
                margins.left + colWidths.item + colWidths.quantity + colWidths.unitPrice, currentY);
 
       currentY += 15;
@@ -370,7 +370,7 @@ export class PDFService {
     doc.fontSize(10)
        .font('Helvetica')
        .text('Subtotal:', summaryX, currentY)
-       .text(`$${bill.subtotal.toFixed(2)}`, summaryX + 100, currentY);
+       .text(`₹${bill.subtotal.toFixed(2)}`, summaryX + 100, currentY);
 
     currentY += 15;
 
@@ -379,7 +379,7 @@ export class PDFService {
       const taxRate = bill.subtotal > 0 ? (bill.taxAmount / bill.subtotal) * 100 : 0;
       
       doc.text(`Tax (${taxRate.toFixed(1)}%):`, summaryX, currentY)
-         .text(`$${bill.taxAmount.toFixed(2)}`, summaryX + 100, currentY);
+         .text(`₹${bill.taxAmount.toFixed(2)}`, summaryX + 100, currentY);
 
       currentY += 15;
     }
@@ -395,7 +395,7 @@ export class PDFService {
     doc.fontSize(12)
        .font('Helvetica-Bold')
        .text('Total:', summaryX, currentY)
-       .text(`$${bill.totalAmount.toFixed(2)}`, summaryX + 100, currentY);
+       .text(`₹${bill.totalAmount.toFixed(2)}`, summaryX + 100, currentY);
 
     return currentY + 30;
   }

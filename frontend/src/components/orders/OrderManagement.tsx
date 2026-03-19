@@ -4,10 +4,6 @@ import {
   Paper,
   Typography,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Table,
   TableBody,
   TableCell,
@@ -28,7 +24,6 @@ import {
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Edit as EditIcon,
   Visibility as ViewIcon,
   Search as SearchIcon,
   Refresh as RefreshIcon
@@ -264,7 +259,7 @@ export const OrderManagement: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   <Typography variant="subtitle2" fontWeight="bold">
-                    ${order.totalAmount?.toFixed(2) || '0.00'}
+                    ₹{order.totalAmount?.toFixed(2) || '0.00'}
                   </Typography>
                 </TableCell>
                 <TableCell>

@@ -35,16 +35,42 @@ export const KitchenDisplay: React.FC = () => {
   const canUpdateOrders = user && [UserRole.ADMIN, UserRole.MANAGER, UserRole.KITCHEN_STAFF].includes(user.role);
 
   useEffect(() => {
-    loadKitchenOrders();
+    let isMounted = true;
+    
+    const load = async () => {
+      try {
+        setLoading(true);
+        const kitchenOrders = await OrderService.getKitchenOrders();
+        if (isMounted) {
+          console.log('Loaded kitchen orders:', kitchenOrders);
+          setOrders(kitchenOrders);
+          setError('');
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setError(err.response?.data?.error?.message || 'Failed to load kitchen orders');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    load();
     // Auto-refresh every 30 seconds
-    const interval = setInterval(loadKitchenOrders, 30000);
-    return () => clearInterval(interval);
+    const interval = setInterval(load, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const loadKitchenOrders = async () => {
     try {
       setLoading(true);
       const kitchenOrders = await OrderService.getKitchenOrders();
+      console.log('Loaded kitchen orders:', kitchenOrders);
       setOrders(kitchenOrders);
       setError('');
     } catch (err: any) {
@@ -75,7 +101,7 @@ export const KitchenDisplay: React.FC = () => {
     const diffMins = Math.floor(diffMs / (1000 * 60));
     const hours = Math.floor(diffMins / 60);
     const mins = diffMins % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${mins}m`;
     }
@@ -95,7 +121,7 @@ export const KitchenDisplay: React.FC = () => {
   const getCardColor = (status: OrderStatus, createdAt: string) => {
     const duration = new Date().getTime() - new Date(createdAt).getTime();
     const minutes = Math.floor(duration / (1000 * 60));
-    
+
     if (minutes > 30) return '#ffebee'; // Light red for urgent
     if (minutes > 15) return '#fff3e0'; // Light orange for attention
     return 'white'; // Normal
@@ -144,7 +170,7 @@ export const KitchenDisplay: React.FC = () => {
           <Typography variant="h6" gutterBottom color="text.secondary">
             New Orders ({groupedOrders.placed.length})
           </Typography>
-          <Box sx={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: '#acacac20', p: 1, borderRadius: 6, border: '1px solid #c8e6c9' }}>
             {groupedOrders.placed.map((order) => (
               <Card
                 key={order.id}
@@ -152,7 +178,8 @@ export const KitchenDisplay: React.FC = () => {
                   mb: 2,
                   backgroundColor: getCardColor(order.status, order.createdAt),
                   border: '2px solid',
-                  borderColor: 'primary.main'
+                  borderColor: 'primary.main',
+                  borderRadius: 4
                 }}
               >
                 <CardContent>
@@ -176,8 +203,8 @@ export const KitchenDisplay: React.FC = () => {
                       <React.Fragment key={item.id}>
                         <ListItem disablePadding>
                           <ListItemText
-                            primary={`${item.quantity}x ${item.menuItem?.name}`}
-                            secondary={item.specialInstructions}
+                            primary={`${item.quantity}x ${item.menuItem?.name || 'Unknown Item'}`}
+                            secondary={item.specialInstructions || 'No special instructions'}
                           />
                         </ListItem>
                         {index < order.items.length - 1 && <Divider />}
@@ -209,10 +236,10 @@ export const KitchenDisplay: React.FC = () => {
 
         {/* Preparing Orders */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Typography variant="h6" gutterBottom color="primary">
+          <Typography variant="h6" gutterBottom color="text.secondary">
             Preparing ({groupedOrders.preparing.length})
           </Typography>
-          <Box sx={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: '#acacac20', p: 1, borderRadius: 6, border: '1px solid #bbdefb' }}>
             {groupedOrders.preparing.map((order) => (
               <Card
                 key={order.id}
@@ -220,7 +247,8 @@ export const KitchenDisplay: React.FC = () => {
                   mb: 2,
                   backgroundColor: getCardColor(order.status, order.createdAt),
                   border: '2px solid',
-                  borderColor: 'warning.main'
+                  borderColor: 'warning.main',
+                  borderRadius: 4
                 }}
               >
                 <CardContent>
@@ -244,8 +272,8 @@ export const KitchenDisplay: React.FC = () => {
                       <React.Fragment key={item.id}>
                         <ListItem disablePadding>
                           <ListItemText
-                            primary={`${item?.quantity}x ${item.menuItem?.name}`}
-                            secondary={item.specialInstructions}
+                            primary={`${item.quantity}x ${item.menuItem?.name || 'Unknown Item'}`}
+                            secondary={item.specialInstructions || 'No special instructions'}
                           />
                         </ListItem>
                         {index < order.items.length - 1 && <Divider />}
@@ -278,10 +306,10 @@ export const KitchenDisplay: React.FC = () => {
 
         {/* Ready Orders */}
         <Grid size={{ xs: 12, md: 4 }}>
-          <Typography variant="h6" gutterBottom color="warning.main">
+          <Typography variant="h6" gutterBottom color="text.secondary">
             Ready for Pickup ({groupedOrders.ready.length})
           </Typography>
-          <Box sx={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: '#acacac20', p: 1, borderRadius: 6, border: '1px solid #c8e6c9' }}>
             {groupedOrders.ready.map((order) => (
               <Card
                 key={order.id}
@@ -289,7 +317,8 @@ export const KitchenDisplay: React.FC = () => {
                   mb: 2,
                   backgroundColor: getCardColor(order.status, order.createdAt),
                   border: '2px solid',
-                  borderColor: 'success.main'
+                  borderColor: 'success.main',
+                  borderRadius: 4
                 }}
               >
                 <CardContent>
@@ -313,8 +342,8 @@ export const KitchenDisplay: React.FC = () => {
                       <React.Fragment key={item.id}>
                         <ListItem disablePadding>
                           <ListItemText
-                            primary={`${item.quantity}x ${item.menuItem.name}`}
-                            secondary={item.specialInstructions}
+                            primary={`${item.quantity}x ${item.menuItem?.name || 'Unknown Item'}`}
+                            secondary={item.specialInstructions || 'No special instructions'}
                           />
                         </ListItem>
                         {index < order.items.length - 1 && <Divider />}

@@ -180,6 +180,15 @@ export class TableRepository {
   }
 
   /**
+   * Clear the current order reference on a table
+   */
+  async clearCurrentOrder(id: string): Promise<void> {
+    await knex(this.tablesTable)
+      .where({ id })
+      .update({ current_order_id: null, updated_at: new Date() });
+  }
+
+  /**
    * Check if table number exists
    */
   async tableNumberExists(number: number, excludeId?: string): Promise<boolean> {

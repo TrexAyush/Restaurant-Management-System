@@ -6,8 +6,8 @@ export async function seed(knex: Knex): Promise<void> {
   await knex('menu_categories').insert([
     {
       id: uuidv4(),
-      name: 'Appetizers',
-      description: 'Start your meal with our delicious appetizers',
+      name: 'Starters',
+      description: 'Crispy snacks and chaats to kick off your meal',
       sort_order: 1,
       is_active: true,
       created_at: new Date(),
@@ -15,8 +15,8 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       id: uuidv4(),
-      name: 'Soups & Salads',
-      description: 'Fresh soups and crisp salads',
+      name: 'Tandoor & Kebabs',
+      description: 'Smoky clay-oven grilled specialties',
       sort_order: 2,
       is_active: true,
       created_at: new Date(),
@@ -24,8 +24,8 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       id: uuidv4(),
-      name: 'Main Courses',
-      description: 'Hearty main dishes to satisfy your appetite',
+      name: 'Main Course - Veg',
+      description: 'Rich vegetarian curries and gravies',
       sort_order: 3,
       is_active: true,
       created_at: new Date(),
@@ -33,8 +33,8 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       id: uuidv4(),
-      name: 'Pasta & Pizza',
-      description: 'Italian classics made fresh daily',
+      name: 'Main Course - Non Veg',
+      description: 'Flavourful chicken, mutton and seafood curries',
       sort_order: 4,
       is_active: true,
       created_at: new Date(),
@@ -42,8 +42,8 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       id: uuidv4(),
-      name: 'Seafood',
-      description: 'Fresh catch of the day and seafood specialties',
+      name: 'Biryani & Rice',
+      description: 'Fragrant dum-cooked biryanis and rice preparations',
       sort_order: 5,
       is_active: true,
       created_at: new Date(),
@@ -51,8 +51,8 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       id: uuidv4(),
-      name: 'Desserts',
-      description: 'Sweet endings to your perfect meal',
+      name: 'Breads',
+      description: 'Fresh tandoori rotis, naans and parathas',
       sort_order: 6,
       is_active: true,
       created_at: new Date(),
@@ -60,8 +60,8 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       id: uuidv4(),
-      name: 'Beverages',
-      description: 'Refreshing drinks and specialty beverages',
+      name: 'Desserts',
+      description: 'Traditional Indian sweets and mithai',
       sort_order: 7,
       is_active: true,
       created_at: new Date(),
@@ -69,8 +69,8 @@ export async function seed(knex: Knex): Promise<void> {
     },
     {
       id: uuidv4(),
-      name: 'Kids Menu',
-      description: 'Special dishes for our younger guests',
+      name: 'Beverages',
+      description: 'Refreshing lassis, chaas and chai',
       sort_order: 8,
       is_active: true,
       created_at: new Date(),

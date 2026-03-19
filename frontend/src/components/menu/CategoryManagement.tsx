@@ -29,6 +29,8 @@ import {
 } from '@mui/icons-material';
 import { menuService } from '../../services/menuService';
 import { MenuCategory, CreateMenuCategoryRequest, UpdateMenuCategoryRequest } from '../../types/menu';
+import { toast } from 'react-toastify';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 interface CategoryFormData {
   name: string;
@@ -49,6 +51,7 @@ export const CategoryManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
   });
   const [submitting, setSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: '', message: '', onConfirm: () => {} });
 
   useEffect(() => {
     loadCategories();
@@ -132,6 +135,7 @@ export const CategoryManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
           sortOrder: formData.sortOrder
         };
         await menuService.updateCategory(editingCategory.id, updateData);
+        toast.success(`Category "${formData.name.trim()}" updated successfully`);
       } else {
         const createData: CreateMenuCategoryRequest = {
           name: formData.name.trim(),
@@ -139,51 +143,62 @@ export const CategoryManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
           sortOrder: formData.sortOrder
         };
         await menuService.createCategory(createData);
+        toast.success(`Category "${formData.name.trim()}" created successfully`);
       }
 
       await loadCategories();
       handleCloseDialog();
     } catch (err: any) {
-      setError(err.message || 'Failed to save category');
-      console.error('Error saving category:', err);
+      const msg = err.message || 'Failed to save category';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleToggleActive = async (category: MenuCategory) => {
-    if (!window.confirm(`Are you sure you want to ${category.isActive ? 'deactivate' : 'activate'} "${category.name}"?`)) {
-      return;
-    }
-
-    try {
-      setError(null);
-      const updateData: UpdateMenuCategoryRequest = {
-        isActive: !category.isActive
-      };
-      await menuService.updateCategory(category.id, updateData);
-      await loadCategories();
-    } catch (err: any) {
-      setError(err.message || 'Failed to update category status');
-      console.error('Error updating category status:', err);
-    }
+  const handleToggleActive = (category: MenuCategory) => {
+    const action = category.isActive ? 'deactivate' : 'activate';
+    setConfirmDialog({
+      open: true,
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} Category`,
+      message: `Are you sure you want to ${action} "${category.name}"?`,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        try {
+          setError(null);
+          const updateData: UpdateMenuCategoryRequest = { isActive: !category.isActive };
+          await menuService.updateCategory(category.id, updateData);
+          await loadCategories();
+          toast.success(`Category "${category.name}" ${action}d successfully`);
+        } catch (err: any) {
+          const msg = err.message || 'Failed to update category status';
+          setError(msg);
+          toast.error(msg);
+        }
+      }
+    });
   };
 
-  const handleDelete = async (category: MenuCategory) => {
-    const confirmMessage = `Are you sure you want to delete "${category.name}"?\n\nThis action cannot be undone and will fail if the category contains menu items.`;
-    
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-
-    try {
-      setError(null);
-      await menuService.deleteCategory(category.id);
-      await loadCategories();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete category');
-      console.error('Error deleting category:', err);
-    }
+  const handleDelete = (category: MenuCategory) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Category',
+      message: `Are you sure you want to delete "${category.name}"? This action cannot be undone and will fail if the category contains menu items.`,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        try {
+          setError(null);
+          await menuService.deleteCategory(category.id);
+          await loadCategories();
+          toast.success(`Category "${category.name}" deleted successfully`);
+        } catch (err: any) {
+          const msg = err.message || 'Failed to delete category';
+          setError(msg);
+          toast.error(msg);
+        }
+      }
+    });
   };
 
   if (loading) {
@@ -367,6 +382,14 @@ export const CategoryManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+      />
     </Box>
   );
 };

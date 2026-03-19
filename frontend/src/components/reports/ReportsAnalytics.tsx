@@ -4,7 +4,6 @@ import {
   Paper,
   Typography,
   Button,
-  Grid,
   Card,
   CardContent,
   FormControl,
@@ -248,7 +247,7 @@ export const ReportsAnalytics: React.FC = () => {
                   Total Revenue
                 </Typography>
                 <Typography variant="h4">
-                  ${salesReport.totalRevenue.toFixed(2)}
+                  ₹{salesReport.totalRevenue.toFixed(2)}
                 </Typography>
               </CardContent>
             </Card>
@@ -268,7 +267,7 @@ export const ReportsAnalytics: React.FC = () => {
                   Avg. Order Value
                 </Typography>
                 <Typography variant="h4">
-                  ${salesReport.averageOrderValue.toFixed(2)}
+                  ₹{salesReport.averageOrderValue.toFixed(2)}
                 </Typography>
               </CardContent>
             </Card>
@@ -307,7 +306,7 @@ export const ReportsAnalytics: React.FC = () => {
                         </Typography>
                       </TableCell>
                       <TableCell>{item.quantitySold}</TableCell>
-                      <TableCell>${item.revenue.toFixed(2)}</TableCell>
+                      <TableCell>₹{item.revenue.toFixed(2)}</TableCell>
                     </TableRow>
                   ))
                 ) : (
@@ -336,7 +335,7 @@ export const ReportsAnalytics: React.FC = () => {
                       {method.paymentMethod.toUpperCase()}
                     </Typography>
                     <Typography variant="h6">
-                      ${method.amount.toFixed(2)}
+                      ₹{method.amount.toFixed(2)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {method.percentage.toFixed(1)}% of total
@@ -428,7 +427,7 @@ export const ReportsAnalytics: React.FC = () => {
                   Total Value
                 </Typography>
                 <Typography variant="h4">
-                  ${inventoryReport.totalValue.toFixed(2)}
+                  ₹{inventoryReport.totalValue.toFixed(2)}
                 </Typography>
               </CardContent>
             </Card>
@@ -462,7 +461,7 @@ export const ReportsAnalytics: React.FC = () => {
                       <TableCell>{item.currentStock}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell>{item.lowStockThreshold}</TableCell>
-                      <TableCell>${item.value.toFixed(2)}</TableCell>
+                      <TableCell>₹{item.value.toFixed(2)}</TableCell>
                       <TableCell>
                         <Chip
                           label={item.status.replace('_', ' ').toUpperCase()}

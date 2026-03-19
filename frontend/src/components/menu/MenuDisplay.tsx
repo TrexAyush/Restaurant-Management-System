@@ -26,7 +26,6 @@ export const MenuDisplay: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAvailableOnly, setShowAvailableOnly] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     loadMenu();
@@ -38,7 +37,6 @@ export const MenuDisplay: React.FC = () => {
       setError(null);
       const data = await menuService.getMenuByCategories(showAvailableOnly);
       setMenuByCategories(data);
-      setRetryCount(0); // Reset retry count on success
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to load menu';
       setError(errorMessage);
@@ -49,7 +47,6 @@ export const MenuDisplay: React.FC = () => {
   };
 
   const handleRetry = () => {
-    setRetryCount(prev => prev + 1);
     loadMenu();
   };
 
@@ -155,7 +152,7 @@ export const MenuDisplay: React.FC = () => {
                             {item.name}
                           </Typography>
                           <Typography variant="h6" color="primary" fontWeight="bold">
-                            ${item.price.toFixed(2)}
+                            ₹{item.price.toFixed(2)}
                           </Typography>
                         </Box>
                         

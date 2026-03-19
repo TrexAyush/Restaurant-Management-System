@@ -59,6 +59,26 @@ export class MenuService {
     await apiClient.delete(`/menu/categories/${id}`);
   }
 
+  async activateCategory(id: string): Promise<MenuCategory> {
+    const response = await apiClient.post<ApiResponse<MenuCategory>>(
+      `/menu/categories/${id}/activate`
+    );
+    if (!response.data.data) {
+      throw new Error('Failed to activate category');
+    }
+    return response.data.data;
+  }
+
+  async deactivateCategory(id: string): Promise<MenuCategory> {
+    const response = await apiClient.post<ApiResponse<MenuCategory>>(
+      `/menu/categories/${id}/deactivate`
+    );
+    if (!response.data.data) {
+      throw new Error('Failed to deactivate category');
+    }
+    return response.data.data;
+  }
+
   // Menu Item Management
 
   async getMenuItems(
@@ -145,6 +165,30 @@ export class MenuService {
 
   async deleteMenuItem(id: string): Promise<void> {
     await apiClient.delete(`/menu/items/${id}`);
+  }
+
+  async permanentlyDeleteMenuItem(id: string): Promise<void> {
+    await apiClient.delete(`/menu/items/${id}/permanent`);
+  }
+
+  async activateMenuItem(id: string): Promise<MenuItem> {
+    const response = await apiClient.post<ApiResponse<MenuItem>>(
+      `/menu/items/${id}/activate`
+    );
+    if (!response.data.data) {
+      throw new Error('Failed to activate menu item');
+    }
+    return response.data.data;
+  }
+
+  async deactivateMenuItem(id: string): Promise<MenuItem> {
+    const response = await apiClient.post<ApiResponse<MenuItem>>(
+      `/menu/items/${id}/deactivate`
+    );
+    if (!response.data.data) {
+      throw new Error('Failed to deactivate menu item');
+    }
+    return response.data.data;
   }
 
   async searchMenuItems(

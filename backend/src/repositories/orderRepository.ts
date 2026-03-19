@@ -230,6 +230,28 @@ export class OrderRepository {
   }
 
   /**
+   * Find orders by status with table and menu item details
+   */
+  async findOrdersByStatusWithDetails(status: OrderStatus): Promise<any[]> {
+    const orders = await knex(this.ordersTable)
+      .select(
+        'orders.*',
+        'tables.id as table_id',
+        'tables.number as table_number'
+      )
+      .leftJoin('tables', 'orders.table_id', 'tables.id')
+      .where('orders.status', status)
+      .orderBy('orders.created_at', 'asc');
+
+    return Promise.all(
+      orders.map(async (order) => {
+        const items = await this.getOrderItemsWithDetails(order.id);
+        return this.mapDbOrderToOrderWithDetailsAndTable(order, items);
+      })
+    );
+  }
+
+  /**
    * Create a new order
    */
   async createOrder(orderData: CreateOrderRequest): Promise<Order> {
@@ -514,6 +536,26 @@ export class OrderRepository {
       totalAmount: parseFloat(dbOrder.total_amount),
       createdAt: new Date(dbOrder.created_at),
       updatedAt: new Date(dbOrder.updated_at)
+    };
+  }
+
+  /**
+   * Map database order object to order with details including table and menu items
+   */
+  private mapDbOrderToOrderWithDetailsAndTable(dbOrder: any, items: any[]): any {
+    return {
+      id: dbOrder.id,
+      tableId: dbOrder.table_id,
+      waiterId: dbOrder.waiter_id,
+      status: dbOrder.status,
+      items,
+      totalAmount: parseFloat(dbOrder.total_amount),
+      createdAt: new Date(dbOrder.created_at).toISOString(),
+      updatedAt: new Date(dbOrder.updated_at).toISOString(),
+      table: {
+        id: dbOrder.table_id,
+        number: dbOrder.table_number
+      }
     };
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -13,7 +13,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Alert,
   CircularProgress,
   Tabs,
   Tab,
@@ -30,10 +29,9 @@ import {
   Refresh,
   Timeline,
   Memory,
-  Speed,
-  Wifi
+  Speed
 } from '@mui/icons-material';
-import axios from 'axios';
+import { apiClient } from '../../config/api';
 
 interface SystemHealth {
   status: 'healthy' | 'warning' | 'error';
@@ -83,42 +81,42 @@ export const SystemMonitoring: React.FC = () => {
   const [timeRange, setTimeRange] = useState(3600000); // 1 hour
   const [errorLevel, setErrorLevel] = useState<'error' | 'warning' | 'info' | ''>('');
 
-  const fetchSystemStats = async () => {
+  const fetchSystemStats = useCallback(async () => {
     try {
-      const response = await axios.get(`/api/monitoring/stats?timeRange=${timeRange}`);
+      const response = await apiClient.get(`/monitoring/stats?timeRange=${timeRange}`);
       setSystemStats(response.data.data);
     } catch (error) {
       console.error('Failed to fetch system stats:', error);
     }
-  };
+  }, [timeRange]);
 
-  const fetchErrorLogs = async () => {
+  const fetchErrorLogs = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (errorLevel) params.append('level', errorLevel);
       params.append('limit', '20');
       
-      const response = await axios.get(`/api/monitoring/errors?${params}`);
+      const response = await apiClient.get(`/monitoring/errors?${params}`);
       setErrorLogs(response.data.data.logs);
     } catch (error) {
       console.error('Failed to fetch error logs:', error);
     }
-  };
-
-  const fetchAllData = async () => {
-    setLoading(true);
-    await Promise.all([
-      fetchSystemStats(),
-      fetchErrorLogs()
-    ]);
-    setLoading(false);
-  };
+  }, [errorLevel]);
 
   useEffect(() => {
-    fetchAllData();
-    const interval = setInterval(fetchAllData, 30000); // Refresh every 30 seconds
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([
+        fetchSystemStats(),
+        fetchErrorLogs()
+      ]);
+      setLoading(false);
+    };
+    
+    loadData();
+    const interval = setInterval(loadData, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
-  }, [timeRange, errorLevel]);
+  }, [fetchSystemStats, fetchErrorLogs]);
 
   const getStatusIcon = (status: 'healthy' | 'warning' | 'error') => {
     switch (status) {
@@ -176,7 +174,13 @@ export const SystemMonitoring: React.FC = () => {
         <Button
           variant="outlined"
           startIcon={<Refresh />}
-          onClick={fetchAllData}
+          onClick={() => {
+            setLoading(true);
+            Promise.all([
+              fetchSystemStats(),
+              fetchErrorLogs()
+            ]).then(() => setLoading(false));
+          }}
         >
           Refresh
         </Button>

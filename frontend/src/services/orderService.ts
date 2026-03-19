@@ -6,7 +6,7 @@ import {
   UpdateOrderRequest, 
   UpdateOrderStatusRequest 
 } from '../types/order';
-import { ApiResponse, PaginationParams, PaginatedResponse } from '../types/menu';
+import { PaginationParams, PaginatedResponse } from '../types/menu';
 
 export class OrderService {
   static async getAllOrders(pagination?: PaginationParams): Promise<PaginatedResponse<OrderWithDetails>> {
@@ -85,6 +85,11 @@ export class OrderService {
 
   static async getKitchenOrders(): Promise<OrderWithDetails[]> {
     const response = await apiClient.get<{ success: boolean; data: OrderWithDetails[] }>('/orders/kitchen');
+    return response.data.data || [];
+  }
+
+  static async getReadyOrders(): Promise<OrderWithDetails[]> {
+    const response = await apiClient.get<{ success: boolean; data: OrderWithDetails[] }>('/orders/ready');
     return response.data.data || [];
   }
 }

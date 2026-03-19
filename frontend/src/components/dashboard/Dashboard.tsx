@@ -7,7 +7,8 @@ import {
   Card,
   CardContent,
   CardActions,
-  Button
+  Button,
+  Divider
 } from '@mui/material';
 import {
   Restaurant,
@@ -21,6 +22,9 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types/auth';
+import { DashboardKPIs } from './DashboardKPIs';
+import { RecentOrders } from './RecentOrders';
+import { SalesTrends } from './SalesTrends';
 
 interface DashboardCard {
   title: string;
@@ -126,6 +130,25 @@ export const Dashboard: React.FC = () => {
           Role: {user?.role.replace('_', ' ').toUpperCase()}
         </Typography>
       </Paper>
+
+      {/* KPIs Section */}
+      <Box sx={{ mb: 4 }}>
+        <DashboardKPIs />
+      </Box>
+
+      <Divider sx={{ my: 3 }} />
+
+      {/* Recent Orders and Sales Trends */}
+      <Box sx={{ mb: 4 }}>
+        <SalesTrends />
+      </Box>
+
+      {/* Recent Orders */}
+      <Box sx={{ mb: 4 }}>
+        <RecentOrders />
+      </Box>
+
+      <Divider sx={{ my: 3 }} />
 
       <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
         Quick Access

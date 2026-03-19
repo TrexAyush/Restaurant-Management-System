@@ -12,10 +12,6 @@ import {
   ListItemText,
   Divider,
   Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Alert,
   CircularProgress,
   Paper,
@@ -31,6 +27,7 @@ import { OrderWithDetails, OrderStatus, UpdateOrderStatusRequest } from '../../t
 import { OrderService } from '../../services/orderService';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types/auth';
+import { toast } from 'react-toastify';
 
 interface OrderDetailsDialogProps {
   open: boolean;
@@ -58,10 +55,12 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
 
       const statusData: UpdateOrderStatusRequest = { status: newStatus };
       await OrderService.updateOrderStatus(order.id, statusData);
-      
+      toast.success(`Order status updated to ${newStatus}`);
       onOrderUpdated();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to update order status');
+      const msg = err.response?.data?.error?.message || 'Failed to update order status';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setUpdating(false);
     }
@@ -206,14 +205,14 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
                         {item.quantity}x {item.menuItem.name}
                       </Typography>
                       <Typography variant="subtitle1" fontWeight="bold">
-                        ${(item.unitPrice * item.quantity).toFixed(2)}
+                        ₹{(item.unitPrice * item.quantity).toFixed(2)}
                       </Typography>
                     </Box>
                   }
                   secondary={
                     <Box>
                       <Typography variant="body2" color="text.secondary">
-                        ${item.unitPrice.toFixed(2)} each
+                        ₹{item.unitPrice.toFixed(2)} each
                       </Typography>
                       {item.menuItem.description && (
                         <Typography variant="body2" color="text.secondary">
@@ -237,7 +236,7 @@ export const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({
         {/* Order Total */}
         <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
           <Typography variant="h6" align="right">
-            Total: ${order.totalAmount.toFixed(2)}
+            Total: ₹{order.totalAmount.toFixed(2)}
           </Typography>
         </Box>
       </DialogContent>

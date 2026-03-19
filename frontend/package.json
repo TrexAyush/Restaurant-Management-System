@@ -8,6 +8,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/x-data-grid": "^8.26.0",
+    "@phosphor-icons/react": "^2.1.10",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -17,11 +18,14 @@
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
     "@types/react-router-dom": "^5.3.3",
+    "apexcharts": "^5.3.6",
     "axios": "^1.13.2",
     "react": "^19.2.3",
+    "react-apexcharts": "^1.9.0",
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.13.0",
     "react-scripts": "5.0.1",
+    "react-toastify": "^11.0.5",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
@@ -50,6 +54,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "fast-check": "^3.13.2"
   }
 }

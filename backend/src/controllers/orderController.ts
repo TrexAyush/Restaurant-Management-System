@@ -39,13 +39,15 @@ export class OrderController {
         filters.dateTo = new Date(req.query.dateTo as string);
       }
 
-      // Extract pagination parameters
+      // Extract pagination parameters with validation
       if (req.query.page) {
-        pagination.page = parseInt(req.query.page as string);
+        const parsedPage = parseInt(req.query.page as string);
+        pagination.page = parsedPage > 0 ? parsedPage : 1;
       }
 
       if (req.query.limit) {
-        pagination.limit = parseInt(req.query.limit as string);
+        const parsedLimit = parseInt(req.query.limit as string);
+        pagination.limit = parsedLimit > 0 ? Math.min(parsedLimit, 100) : 20;
       }
 
       if (req.query.sortBy) {

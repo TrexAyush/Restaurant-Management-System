@@ -248,6 +248,21 @@ export class ReportingService {
     }
   }
 
+  static async getDashboardSummary(): Promise<any> {
+    try {
+      const response = await apiClient.get<ApiResponse<any>>('/reports/dashboard');
+      
+      if (!response.data.success || !response.data.data) {
+        throw new Error('Failed to fetch dashboard summary');
+      }
+
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching dashboard summary:', error);
+      throw error;
+    }
+  }
+
   // Helper method to transform payment method data from object to array
   private static transformPaymentMethodData(paymentMethodData: any): Array<{
     paymentMethod: string;

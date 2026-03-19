@@ -45,6 +45,8 @@ import {
   MenuItemSearchFilters,
   PaginationParams
 } from '../../types/menu';
+import { toast } from 'react-toastify';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 interface MenuItemFormData {
   name: string;
@@ -68,6 +70,7 @@ export const MenuItemManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
   });
   const [submitting, setSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: '', message: '', onConfirm: () => {} });
 
   // Pagination and filtering
   const [page, setPage] = useState(0);
@@ -195,6 +198,7 @@ export const MenuItemManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
           categoryId: formData.categoryId
         };
         await menuService.updateMenuItem(editingItem.id, updateData);
+        toast.success(`"${formData.name.trim()}" updated successfully`);
       } else {
         const createData: CreateMenuItemRequest = {
           name: formData.name.trim(),
@@ -203,49 +207,61 @@ export const MenuItemManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
           categoryId: formData.categoryId
         };
         await menuService.createMenuItem(createData);
+        toast.success(`"${formData.name.trim()}" created successfully`);
       }
 
       await loadMenuItems();
       handleCloseDialog();
     } catch (err: any) {
-      setError(err.message || 'Failed to save menu item');
-      console.error('Error saving menu item:', err);
+      const msg = err.message || 'Failed to save menu item';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleToggleAvailability = async (item: MenuItemWithCategory) => {
+  const handleToggleAvailability = (item: MenuItemWithCategory) => {
     const action = item.isAvailable ? 'make unavailable' : 'make available';
-    if (!window.confirm(`Are you sure you want to ${action} "${item.name}"?`)) {
-      return;
-    }
-
-    try {
-      setError(null);
-      await menuService.toggleMenuItemAvailability(item.id, !item.isAvailable);
-      await loadMenuItems();
-    } catch (err: any) {
-      setError(err.message || 'Failed to update item availability');
-      console.error('Error updating item availability:', err);
-    }
+    setConfirmDialog({
+      open: true,
+      title: 'Change Availability',
+      message: `Are you sure you want to ${action} "${item.name}"?`,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        try {
+          setError(null);
+          await menuService.toggleMenuItemAvailability(item.id, !item.isAvailable);
+          await loadMenuItems();
+          toast.success(`"${item.name}" is now ${!item.isAvailable ? 'available' : 'unavailable'}`);
+        } catch (err: any) {
+          const msg = err.message || 'Failed to update item availability';
+          setError(msg);
+          toast.error(msg);
+        }
+      }
+    });
   };
 
-  const handleDelete = async (item: MenuItemWithCategory) => {
-    const confirmMessage = `Are you sure you want to delete "${item.name}"?\n\nThis will make it unavailable but preserve it in order history.`;
-    
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-
-    try {
-      setError(null);
-      await menuService.deleteMenuItem(item.id);
-      await loadMenuItems();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete menu item');
-      console.error('Error deleting menu item:', err);
-    }
+  const handleDelete = (item: MenuItemWithCategory) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Menu Item',
+      message: `Are you sure you want to delete "${item.name}"? This will make it unavailable but preserve it in order history.`,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+        try {
+          setError(null);
+          await menuService.deleteMenuItem(item.id);
+          await loadMenuItems();
+          toast.success(`"${item.name}" deleted successfully`);
+        } catch (err: any) {
+          const msg = err.message || 'Failed to delete menu item';
+          setError(msg);
+          toast.error(msg);
+        }
+      }
+    });
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -381,7 +397,7 @@ export const MenuItemManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
                 </TableCell>
                 <TableCell>
                   <Typography variant="subtitle1" fontWeight="medium">
-                    ${item.price.toFixed(2)}
+                    ₹{item.price.toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell>
@@ -556,6 +572,14 @@ export const MenuItemManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+      />
     </Box>
   );
 };

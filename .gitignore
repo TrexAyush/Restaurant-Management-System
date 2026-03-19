@@ -89,3 +89,12 @@ frontend/.eslintcache
 ehthumbs.db
 Thumbs.db
 
+# Playwright
+frontend/test-results/
+frontend/playwright-report/
+frontend/playwright/.cache/
+
+# Database
+*.sqlite
+*.db
+

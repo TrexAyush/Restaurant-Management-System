@@ -28,15 +28,18 @@ import {
   CardContent
 } from '@mui/material';
 import {
-  Receipt as ReceiptIcon,
   Payment as PaymentIcon,
   PictureAsPdf as PdfIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  Receipt as ReceiptIcon
 } from '@mui/icons-material';
 import { BillWithDetails, PaymentMethod, PaymentStatus, ProcessPaymentRequest } from '../../types/billing';
 import { BillingService } from '../../services/billingService';
+import { OrderService } from '../../services/orderService';
+import { OrderWithDetails } from '../../types/order';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types/auth';
+import { toast } from 'react-toastify';
 
 export const BillingManagement: React.FC = () => {
   const [bills, setBills] = useState<BillWithDetails[]>([]);
@@ -52,6 +55,14 @@ export const BillingManagement: React.FC = () => {
   const [selectedBill, setSelectedBill] = useState<BillWithDetails | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>(PaymentMethod.CASH);
   const [processing, setProcessing] = useState(false);
+  
+  // Generate bill dialog
+  const [generateBillDialogOpen, setGenerateBillDialogOpen] = useState(false);
+  const [readyOrders, setReadyOrders] = useState<OrderWithDetails[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null);
+  const [generatingBill, setGeneratingBill] = useState(false);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string>('');
   
   const { user } = useAuth();
 
@@ -124,9 +135,12 @@ export const BillingManagement: React.FC = () => {
 
       await BillingService.processPayment(selectedBill.id, paymentData);
       setPaymentDialogOpen(false);
+      toast.success('Payment processed successfully');
       await loadBills();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to process payment');
+      const msg = err.response?.data?.error?.message || 'Failed to process payment';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setProcessing(false);
     }
@@ -143,8 +157,60 @@ export const BillingManagement: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+      toast.success('PDF downloaded successfully');
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to download PDF');
+      const msg = err.response?.data?.error?.message || 'Failed to download PDF';
+      setError(msg);
+      toast.error(msg);
+    }
+  };
+
+  const handleOpenGenerateBillDialog = async () => {
+    try {
+      setLoadingOrders(true);
+      setError('');
+      const servedOrders = await OrderService.getOrdersByStatus('served');
+      // Filter out orders that already have a bill
+      const billChecks = await Promise.all(
+        servedOrders.map(async (order) => {
+          const hasBill = await BillingService.checkBillExists(order.id);
+          return { order, hasBill };
+        })
+      );
+      setReadyOrders(billChecks.filter(({ hasBill }) => !hasBill).map(({ order }) => order));
+      setGenerateBillDialogOpen(true);
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || 'Failed to load served orders';
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  const handleGenerateBill = async () => {
+    if (!selectedOrder) return;
+    
+    try {
+      setGeneratingBill(true);
+      setError('');
+      
+      await BillingService.generateBill(selectedOrder.id);
+      toast.success('Bill generated successfully');
+      setSuccessMessage('Bill generated successfully');
+      setGenerateBillDialogOpen(false);
+      setSelectedOrder(null);
+      
+      setTimeout(() => {
+        loadBills();
+        setSuccessMessage('');
+      }, 1000);
+    } catch (err: any) {
+      const msg = err.response?.data?.error?.message || 'Failed to generate bill';
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setGeneratingBill(false);
     }
   };
 
@@ -172,9 +238,21 @@ export const BillingManagement: React.FC = () => {
         <Typography variant="h4" component="h1">
           Billing Management
         </Typography>
-        <IconButton onClick={loadBills} title="Refresh">
-          <RefreshIcon />
-        </IconButton>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          {canProcessPayments && (
+            <Button
+              variant="contained"
+              startIcon={<ReceiptIcon />}
+              onClick={handleOpenGenerateBillDialog}
+              disabled={loadingOrders}
+            >
+              {loadingOrders ? <CircularProgress size={20} /> : 'Generate Bill'}
+            </Button>
+          )}
+          <IconButton onClick={loadBills} title="Refresh" disabled={loading}>
+            <RefreshIcon />
+          </IconButton>
+        </Box>
       </Box>
 
       {error && (
@@ -182,6 +260,89 @@ export const BillingManagement: React.FC = () => {
           {error}
         </Alert>
       )}
+
+      {successMessage && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {successMessage}
+        </Alert>
+      )}
+
+      {/* Generate Bill Dialog */}
+      <Dialog
+        open={generateBillDialogOpen}
+        onClose={() => setGenerateBillDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Generate Bill from Order</DialogTitle>
+        <DialogContent>
+          {loadingOrders ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : readyOrders.length === 0 ? (
+            <Typography color="textSecondary">
+              No served orders available for billing
+            </Typography>
+          ) : (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                Select an order to generate a bill:
+              </Typography>
+              {readyOrders.map((order) => (
+                <Box
+                  key={order.id}
+                  sx={{
+                    p: 2,
+                    mb: 1,
+                    border: '1px solid #ddd',
+                    borderRadius: 1,
+                    cursor: 'pointer',
+                    backgroundColor: selectedOrder?.id === order.id ? '#e3f2fd' : 'white',
+                    borderColor: selectedOrder?.id === order.id ? '#2196f3' : '#ddd',
+                  }}
+                  onClick={() => setSelectedOrder(order)}
+                >
+                  <Grid container spacing={1}>
+                    <Grid size={6}>
+                      <Typography variant="body2">
+                        <strong>Table:</strong> {order.table?.number || 'Unknown'}
+                      </Typography>
+                    </Grid>
+                    <Grid size={6}>
+                      <Typography variant="body2">
+                        <strong>Order ID:</strong> {order.id}
+                      </Typography>
+                    </Grid>
+                    <Grid size={6}>
+                      <Typography variant="body2">
+                        <strong>Items:</strong> {order.items?.length || 0}
+                      </Typography>
+                    </Grid>
+                    <Grid size={6}>
+                      <Typography variant="body2">
+                        <strong>Total:</strong> ₹{(order.totalAmount || 0).toFixed(2)}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setGenerateBillDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleGenerateBill}
+            variant="contained"
+            disabled={!selectedOrder || generatingBill}
+          >
+            {generatingBill ? <CircularProgress size={24} /> : 'Generate Bill'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {!canProcessPayments && (
         <Alert severity="info" sx={{ mb: 2 }}>
@@ -201,7 +362,7 @@ export const BillingManagement: React.FC = () => {
                 {pendingBills.length}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                ${pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0).toFixed(2)}
+                ₹{pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0).toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -216,7 +377,7 @@ export const BillingManagement: React.FC = () => {
                 {paidBills.length}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                ${totalRevenue.toFixed(2)}
+                ₹{totalRevenue.toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
@@ -231,7 +392,7 @@ export const BillingManagement: React.FC = () => {
                 {Array.isArray(bills) ? bills.length : 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                ${Array.isArray(bills) ? bills.reduce((sum, bill) => sum + bill.totalAmount, 0).toFixed(2) : '0.00'}
+                ₹{Array.isArray(bills) ? bills.reduce((sum, bill) => sum + bill.totalAmount, 0).toFixed(2) : '0.00'}
               </Typography>
             </CardContent>
           </Card>
@@ -243,7 +404,7 @@ export const BillingManagement: React.FC = () => {
                 Avg. Bill Value
               </Typography>
               <Typography variant="h4">
-                ${Array.isArray(bills) && bills.length > 0 ? (bills.reduce((sum, bill) => sum + bill.totalAmount, 0) / bills.length).toFixed(2) : '0.00'}
+                ₹{Array.isArray(bills) && bills.length > 0 ? (bills.reduce((sum, bill) => sum + bill.totalAmount, 0) / bills.length).toFixed(2) : '0.00'}
               </Typography>
             </CardContent>
           </Card>
@@ -301,17 +462,17 @@ export const BillingManagement: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2">
-                    ${bill.subtotal.toFixed(2)}
+                    ₹{bill.subtotal.toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2">
-                    ${bill.taxAmount.toFixed(2)}
+                    ₹{bill.taxAmount.toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell>
                   <Typography variant="subtitle2" fontWeight="bold">
-                    ${bill.totalAmount.toFixed(2)}
+                    ₹{bill.totalAmount.toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell>
@@ -410,7 +571,7 @@ export const BillingManagement: React.FC = () => {
                 Items: {selectedBill.order?.items?.length || 0}
               </Typography>
               <Typography variant="h6" color="primary" gutterBottom>
-                Total Amount: ${selectedBill.totalAmount.toFixed(2)}
+                Total Amount: ₹{selectedBill.totalAmount.toFixed(2)}
               </Typography>
 
               <FormControl fullWidth margin="normal">

@@ -2,7 +2,6 @@ import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function seed(knex: Knex): Promise<void> {
-  // Get menu items and inventory items
   const menuItems = await knex('menu_items').select('id', 'name');
   const inventoryItems = await knex('inventory_items').select('id', 'name');
 
@@ -11,7 +10,6 @@ export async function seed(knex: Knex): Promise<void> {
     return;
   }
 
-  // Create a mapping of inventory items by name for easier lookup
   const inventoryMap = inventoryItems.reduce((acc: any, item: any) => {
     acc[item.name.toLowerCase()] = item.id;
     return acc;
@@ -19,120 +17,173 @@ export async function seed(knex: Knex): Promise<void> {
 
   const ingredients: any[] = [];
 
-  // Define ingredients for specific menu items
   const menuItemIngredients: { [key: string]: Array<{ ingredient: string; quantity: number; unit: string }> } = {
-    'Buffalo Wings': [
-      { ingredient: 'chicken breast', quantity: 0.5, unit: 'lbs' },
-      { ingredient: 'flour', quantity: 0.1, unit: 'lbs' },
-      { ingredient: 'olive oil', quantity: 0.05, unit: 'liters' }
+    'Paneer Tikka': [
+      { ingredient: 'paneer', quantity: 0.25, unit: 'kg' },
+      { ingredient: 'capsicum', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'curd / yoghurt', quantity: 0.05, unit: 'kg' },
+      { ingredient: 'red chilli powder', quantity: 0.005, unit: 'kg' }
     ],
-    'Mozzarella Sticks': [
-      { ingredient: 'mozzarella cheese', quantity: 0.25, unit: 'lbs' },
-      { ingredient: 'flour', quantity: 0.1, unit: 'lbs' },
-      { ingredient: 'eggs', quantity: 2, unit: 'pieces' }
+    'Chicken 65': [
+      { ingredient: 'chicken', quantity: 0.25, unit: 'kg' },
+      { ingredient: 'red chilli powder', quantity: 0.01, unit: 'kg' },
+      { ingredient: 'cooking oil', quantity: 0.1, unit: 'liters' }
     ],
-    'Caesar Salad': [
-      { ingredient: 'lettuce', quantity: 0.5, unit: 'heads' },
-      { ingredient: 'mozzarella cheese', quantity: 0.1, unit: 'lbs' },
-      { ingredient: 'olive oil', quantity: 0.02, unit: 'liters' }
+    'Samosa (2 pcs)': [
+      { ingredient: 'potatoes', quantity: 0.15, unit: 'kg' },
+      { ingredient: 'maida (refined flour)', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'cooking oil', quantity: 0.05, unit: 'liters' }
     ],
-    'Garden Salad': [
-      { ingredient: 'lettuce', quantity: 0.5, unit: 'heads' },
-      { ingredient: 'tomatoes', quantity: 0.25, unit: 'lbs' },
-      { ingredient: 'onions', quantity: 0.1, unit: 'lbs' },
-      { ingredient: 'bell peppers', quantity: 0.1, unit: 'lbs' }
+    'Aloo Tikki Chaat': [
+      { ingredient: 'potatoes', quantity: 0.2, unit: 'kg' },
+      { ingredient: 'curd / yoghurt', quantity: 0.05, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.05, unit: 'kg' }
     ],
-    'Tomato Basil Soup': [
-      { ingredient: 'tomatoes', quantity: 0.5, unit: 'lbs' },
-      { ingredient: 'onions', quantity: 0.1, unit: 'lbs' },
-      { ingredient: 'heavy cream', quantity: 0.25, unit: 'quarts' },
-      { ingredient: 'olive oil', quantity: 0.02, unit: 'liters' }
+    'Tandoori Chicken (Half)': [
+      { ingredient: 'chicken', quantity: 0.5, unit: 'kg' },
+      { ingredient: 'curd / yoghurt', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'red chilli powder', quantity: 0.01, unit: 'kg' },
+      { ingredient: 'garam masala', quantity: 0.005, unit: 'kg' }
     ],
-    'Grilled Ribeye Steak': [
-      { ingredient: 'ground beef', quantity: 0.75, unit: 'lbs' }, // Using ground beef as proxy for steak
-      { ingredient: 'salt', quantity: 0.01, unit: 'lbs' },
-      { ingredient: 'black pepper', quantity: 0.005, unit: 'lbs' },
-      { ingredient: 'olive oil', quantity: 0.02, unit: 'liters' }
+    'Seekh Kebab': [
+      { ingredient: 'mutton', quantity: 0.3, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'green chillies', quantity: 0.01, unit: 'kg' },
+      { ingredient: 'garam masala', quantity: 0.005, unit: 'kg' }
     ],
-    'Grilled Chicken Breast': [
-      { ingredient: 'chicken breast', quantity: 0.5, unit: 'lbs' },
-      { ingredient: 'rice', quantity: 0.25, unit: 'lbs' },
-      { ingredient: 'olive oil', quantity: 0.02, unit: 'liters' },
-      { ingredient: 'salt', quantity: 0.01, unit: 'lbs' }
+    'Malai Tikka': [
+      { ingredient: 'chicken', quantity: 0.3, unit: 'kg' },
+      { ingredient: 'cream', quantity: 0.05, unit: 'liters' },
+      { ingredient: 'garam masala', quantity: 0.005, unit: 'kg' }
     ],
-    'Beef Burger Deluxe': [
-      { ingredient: 'ground beef', quantity: 0.5, unit: 'lbs' },
-      { ingredient: 'lettuce', quantity: 0.1, unit: 'heads' },
-      { ingredient: 'tomatoes', quantity: 0.1, unit: 'lbs' },
-      { ingredient: 'onions', quantity: 0.05, unit: 'lbs' },
-      { ingredient: 'mozzarella cheese', quantity: 0.1, unit: 'lbs' }
+    'Tandoori Prawns': [
+      { ingredient: 'prawns', quantity: 0.25, unit: 'kg' },
+      { ingredient: 'curd / yoghurt', quantity: 0.05, unit: 'kg' },
+      { ingredient: 'red chilli powder', quantity: 0.005, unit: 'kg' }
     ],
-    'Spaghetti Carbonara': [
-      { ingredient: 'pasta - spaghetti', quantity: 0.25, unit: 'lbs' },
-      { ingredient: 'eggs', quantity: 2, unit: 'pieces' },
-      { ingredient: 'mozzarella cheese', quantity: 0.15, unit: 'lbs' },
-      { ingredient: 'black pepper', quantity: 0.005, unit: 'lbs' }
+    'Paneer Butter Masala': [
+      { ingredient: 'paneer', quantity: 0.25, unit: 'kg' },
+      { ingredient: 'tomatoes', quantity: 0.2, unit: 'kg' },
+      { ingredient: 'cream', quantity: 0.05, unit: 'liters' },
+      { ingredient: 'ghee', quantity: 0.03, unit: 'kg' }
     ],
-    'Margherita Pizza': [
-      { ingredient: 'flour', quantity: 0.2, unit: 'lbs' },
-      { ingredient: 'mozzarella cheese', quantity: 0.3, unit: 'lbs' },
-      { ingredient: 'tomatoes', quantity: 0.2, unit: 'lbs' },
-      { ingredient: 'olive oil', quantity: 0.02, unit: 'liters' }
+    'Dal Makhani': [
+      { ingredient: 'cream', quantity: 0.05, unit: 'liters' },
+      { ingredient: 'ghee', quantity: 0.03, unit: 'kg' },
+      { ingredient: 'tomatoes', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'garam masala', quantity: 0.005, unit: 'kg' }
     ],
-    'Pepperoni Pizza': [
-      { ingredient: 'flour', quantity: 0.2, unit: 'lbs' },
-      { ingredient: 'mozzarella cheese', quantity: 0.3, unit: 'lbs' },
-      { ingredient: 'tomatoes', quantity: 0.2, unit: 'lbs' },
-      { ingredient: 'olive oil', quantity: 0.02, unit: 'liters' }
+    'Palak Paneer': [
+      { ingredient: 'paneer', quantity: 0.2, unit: 'kg' },
+      { ingredient: 'cream', quantity: 0.03, unit: 'liters' },
+      { ingredient: 'onions', quantity: 0.05, unit: 'kg' }
     ],
-    'Fettuccine Alfredo': [
-      { ingredient: 'pasta - spaghetti', quantity: 0.25, unit: 'lbs' }, // Using spaghetti as proxy
-      { ingredient: 'heavy cream', quantity: 0.5, unit: 'quarts' },
-      { ingredient: 'mozzarella cheese', quantity: 0.2, unit: 'lbs' }
+    'Aloo Gobi': [
+      { ingredient: 'potatoes', quantity: 0.2, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'turmeric powder', quantity: 0.005, unit: 'kg' },
+      { ingredient: 'cooking oil', quantity: 0.03, unit: 'liters' }
     ],
-    'Grilled Salmon': [
-      { ingredient: 'salmon fillet', quantity: 0.5, unit: 'lbs' },
-      { ingredient: 'rice', quantity: 0.25, unit: 'lbs' },
-      { ingredient: 'olive oil', quantity: 0.02, unit: 'liters' },
-      { ingredient: 'salt', quantity: 0.01, unit: 'lbs' }
+    'Butter Chicken': [
+      { ingredient: 'chicken', quantity: 0.3, unit: 'kg' },
+      { ingredient: 'tomatoes', quantity: 0.2, unit: 'kg' },
+      { ingredient: 'cream', quantity: 0.05, unit: 'liters' },
+      { ingredient: 'ghee', quantity: 0.03, unit: 'kg' },
+      { ingredient: 'garam masala', quantity: 0.005, unit: 'kg' }
     ],
-    'Shrimp Scampi': [
-      { ingredient: 'shrimp', quantity: 0.5, unit: 'lbs' },
-      { ingredient: 'pasta - spaghetti', quantity: 0.25, unit: 'lbs' },
-      { ingredient: 'olive oil', quantity: 0.03, unit: 'liters' },
-      { ingredient: 'onions', quantity: 0.1, unit: 'lbs' }
+    'Mutton Rogan Josh': [
+      { ingredient: 'mutton', quantity: 0.35, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.15, unit: 'kg' },
+      { ingredient: 'curd / yoghurt', quantity: 0.05, unit: 'kg' },
+      { ingredient: 'red chilli powder', quantity: 0.01, unit: 'kg' },
+      { ingredient: 'garam masala', quantity: 0.005, unit: 'kg' }
     ],
-    'Chocolate Lava Cake': [
-      { ingredient: 'flour', quantity: 0.1, unit: 'lbs' },
-      { ingredient: 'eggs', quantity: 2, unit: 'pieces' },
-      { ingredient: 'sugar', quantity: 0.15, unit: 'lbs' },
-      { ingredient: 'vanilla extract', quantity: 0.01, unit: 'liters' }
+    'Chicken Kadhai': [
+      { ingredient: 'chicken', quantity: 0.3, unit: 'kg' },
+      { ingredient: 'capsicum', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'tomatoes', quantity: 0.15, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.1, unit: 'kg' }
     ],
-    'New York Cheesecake': [
-      { ingredient: 'heavy cream', quantity: 0.5, unit: 'quarts' },
-      { ingredient: 'eggs', quantity: 3, unit: 'pieces' },
-      { ingredient: 'sugar', quantity: 0.2, unit: 'lbs' },
-      { ingredient: 'vanilla extract', quantity: 0.01, unit: 'liters' }
+    'Prawn Masala': [
+      { ingredient: 'prawns', quantity: 0.25, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'tomatoes', quantity: 0.15, unit: 'kg' },
+      { ingredient: 'cooking oil', quantity: 0.03, unit: 'liters' }
     ],
-    'Fresh Orange Juice': [
-      { ingredient: 'orange juice', quantity: 0.3, unit: 'liters' }
+    'Hyderabadi Chicken Biryani': [
+      { ingredient: 'chicken', quantity: 0.3, unit: 'kg' },
+      { ingredient: 'basmati rice', quantity: 0.25, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.15, unit: 'kg' },
+      { ingredient: 'curd / yoghurt', quantity: 0.05, unit: 'kg' },
+      { ingredient: 'ghee', quantity: 0.03, unit: 'kg' },
+      { ingredient: 'saffron', quantity: 0.0005, unit: 'kg' }
     ],
-    'Coffee': [
-      { ingredient: 'coffee beans', quantity: 0.05, unit: 'lbs' }
+    'Mutton Biryani': [
+      { ingredient: 'mutton', quantity: 0.3, unit: 'kg' },
+      { ingredient: 'basmati rice', quantity: 0.25, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.15, unit: 'kg' },
+      { ingredient: 'ghee', quantity: 0.03, unit: 'kg' }
     ],
-    'Kids Chicken Nuggets': [
-      { ingredient: 'chicken breast', quantity: 0.25, unit: 'lbs' },
-      { ingredient: 'flour', quantity: 0.1, unit: 'lbs' },
-      { ingredient: 'eggs', quantity: 1, unit: 'pieces' }
+    'Veg Biryani': [
+      { ingredient: 'basmati rice', quantity: 0.25, unit: 'kg' },
+      { ingredient: 'onions', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'capsicum', quantity: 0.05, unit: 'kg' },
+      { ingredient: 'ghee', quantity: 0.02, unit: 'kg' }
     ],
-    'Kids Mac and Cheese': [
-      { ingredient: 'pasta - spaghetti', quantity: 0.15, unit: 'lbs' }, // Using spaghetti as proxy
-      { ingredient: 'mozzarella cheese', quantity: 0.2, unit: 'lbs' },
-      { ingredient: 'heavy cream', quantity: 0.25, unit: 'quarts' }
+    'Jeera Rice': [
+      { ingredient: 'basmati rice', quantity: 0.2, unit: 'kg' },
+      { ingredient: 'ghee', quantity: 0.02, unit: 'kg' }
+    ],
+    'Butter Naan': [
+      { ingredient: 'maida (refined flour)', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'ghee', quantity: 0.01, unit: 'kg' }
+    ],
+    'Garlic Naan': [
+      { ingredient: 'maida (refined flour)', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'ghee', quantity: 0.01, unit: 'kg' }
+    ],
+    'Tandoori Roti': [
+      { ingredient: 'atta (wheat flour)', quantity: 0.08, unit: 'kg' }
+    ],
+    'Laccha Paratha': [
+      { ingredient: 'atta (wheat flour)', quantity: 0.1, unit: 'kg' },
+      { ingredient: 'ghee', quantity: 0.02, unit: 'kg' }
+    ],
+    'Gulab Jamun (2 pcs)': [
+      { ingredient: 'milk', quantity: 0.1, unit: 'liters' },
+      { ingredient: 'sugar', quantity: 0.05, unit: 'kg' },
+      { ingredient: 'ghee', quantity: 0.02, unit: 'kg' }
+    ],
+    'Rasmalai': [
+      { ingredient: 'milk', quantity: 0.2, unit: 'liters' },
+      { ingredient: 'sugar', quantity: 0.05, unit: 'kg' },
+      { ingredient: 'saffron', quantity: 0.0002, unit: 'kg' }
+    ],
+    'Gajar Ka Halwa': [
+      { ingredient: 'milk', quantity: 0.15, unit: 'liters' },
+      { ingredient: 'ghee', quantity: 0.03, unit: 'kg' },
+      { ingredient: 'sugar', quantity: 0.05, unit: 'kg' }
+    ],
+    'Kulfi': [
+      { ingredient: 'milk', quantity: 0.2, unit: 'liters' },
+      { ingredient: 'sugar', quantity: 0.03, unit: 'kg' }
+    ],
+    'Masala Chai': [
+      { ingredient: 'tea leaves', quantity: 0.005, unit: 'kg' },
+      { ingredient: 'milk', quantity: 0.1, unit: 'liters' },
+      { ingredient: 'sugar', quantity: 0.01, unit: 'kg' }
+    ],
+    'Mango Lassi': [
+      { ingredient: 'curd / yoghurt', quantity: 0.15, unit: 'kg' },
+      { ingredient: 'sugar', quantity: 0.02, unit: 'kg' }
+    ],
+    'Sweet Lassi': [
+      { ingredient: 'curd / yoghurt', quantity: 0.15, unit: 'kg' },
+      { ingredient: 'sugar', quantity: 0.02, unit: 'kg' }
     ]
   };
 
-  // Create ingredients for menu items
   menuItems.forEach((menuItem: any) => {
     const itemIngredients = menuItemIngredients[menuItem.name];
     if (itemIngredients) {
@@ -153,7 +204,6 @@ export async function seed(knex: Knex): Promise<void> {
     }
   });
 
-  // Insert ingredients
   if (ingredients.length > 0) {
     await knex('menu_item_ingredients').insert(ingredients);
   }

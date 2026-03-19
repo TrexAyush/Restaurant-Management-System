@@ -27,13 +27,14 @@ import {
   Remove as RemoveIcon,
   Delete as DeleteIcon
 } from '@mui/icons-material';
-import { Table, TableStatus } from '../../types/table';
-import { MenuItem as MenuItemType, MenuItemWithCategory } from '../../types/menu';
+import { Table } from '../../types/table';
+import { MenuItemWithCategory } from '../../types/menu';
 import { CreateOrderRequest, CreateOrderItemRequest } from '../../types/order';
 import { TableService } from '../../services/tableService';
 import { menuService } from '../../services/menuService';
 import { OrderService } from '../../services/orderService';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-toastify';
 
 interface OrderItem {
   menuItem: MenuItemWithCategory;
@@ -171,10 +172,13 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
       };
 
       await OrderService.createOrder(orderData);
+      toast.success('Order created successfully');
       onOrderCreated();
       handleClose();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to create order');
+      const msg = err.response?.data?.error?.message || 'Failed to create order';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -235,7 +239,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                 <Autocomplete
                   sx={{ flexGrow: 1 }}
                   options={menuItems}
-                  getOptionLabel={(option) => `${option.name} - $${option.price.toFixed(2)}`}
+                  getOptionLabel={(option) => `${option.name} - ₹${option.price.toFixed(2)}`}
                   value={selectedMenuItem}
                   onChange={(_, newValue) => setSelectedMenuItem(newValue)}
                   renderInput={(params) => (
@@ -252,7 +256,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                           {option.name}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {option.category?.name} - ${option.price.toFixed(2)}
+                          {option.category?.name} - ₹{option.price.toFixed(2)}
                         </Typography>
                         {option.description && (
                           <Typography variant="caption" color="text.secondary">
@@ -291,14 +295,14 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                                 {item.menuItem.name}
                               </Typography>
                               <Typography variant="subtitle1" fontWeight="bold">
-                                ${(item.menuItem.price * item.quantity).toFixed(2)}
+                                ₹{(item.menuItem.price * item.quantity).toFixed(2)}
                               </Typography>
                             </Box>
                           }
                           secondary={
                             <Box>
                               <Typography variant="body2" color="text.secondary">
-                                ${item.menuItem.price.toFixed(2)} each
+                                ₹{item.menuItem.price.toFixed(2)} each
                               </Typography>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
                                 <IconButton
@@ -345,7 +349,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
 
                 <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
                   <Typography variant="h6" align="right">
-                    Total: ${calculateTotal().toFixed(2)}
+                    Total: ₹{calculateTotal().toFixed(2)}
                   </Typography>
                 </Box>
               </Box>

@@ -146,13 +146,6 @@ export class TableService {
       throw new Error(`Invalid status transition from ${existingTable.status} to ${statusData.status}`);
     }
 
-    // Additional validation for occupied status
-    if (statusData.status === TableStatus.OCCUPIED) {
-      if (!statusData.currentOrderId) {
-        throw new Error('Order ID is required when setting table status to occupied');
-      }
-    }
-
     // Additional validation for available status
     if (statusData.status === TableStatus.AVAILABLE) {
       if (existingTable.currentOrderId) {
@@ -187,6 +180,17 @@ export class TableService {
   }
 
   /**
+   * Clear the current order reference on a table (used when an order is completed)
+   */
+  async clearCurrentOrder(tableId: string): Promise<void> {
+    const table = await tableRepository.findTableById(tableId);
+    if (!table) {
+      throw new Error('Table not found');
+    }
+    await tableRepository.clearCurrentOrder(tableId);
+  }
+
+  /**
    * Get tables by status
    */
   async getTablesByStatus(status: TableStatus): Promise<Table[]> {
@@ -218,9 +222,9 @@ export class TableService {
       throw new Error('Table not found');
     }
 
-    // Check if table is available
-    if (table.status !== TableStatus.AVAILABLE) {
-      throw new Error(`Table is not available (current status: ${table.status})`);
+    // Check if table is available or reserved (reserved tables can be seated)
+    if (table.status !== TableStatus.AVAILABLE && table.status !== TableStatus.RESERVED) {
+      throw new Error(`Table is not available for seating (current status: ${table.status})`);
     }
 
     // Validate capacity
@@ -255,6 +259,11 @@ export class TableService {
     // Check if table can be cleared
     if (table.status === TableStatus.OUT_OF_SERVICE) {
       throw new Error('Cannot clear table that is out of service');
+    }
+
+    // Clear the current order reference if present
+    if (table.currentOrderId) {
+      await tableRepository.clearCurrentOrder(tableId);
     }
 
     // Update table status to available

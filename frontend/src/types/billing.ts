@@ -42,8 +42,56 @@ export interface BillWithDetails extends Bill {
 
 export interface CreateBillRequest {
   orderId: string;
+  taxRate?: number;
 }
 
 export interface ProcessPaymentRequest {
   paymentMethod: PaymentMethod;
+}
+
+export interface BillingConfig {
+  id: string;
+  taxRate: number;
+  defaultPaymentMethod: PaymentMethod;
+  enableAutoGeneration: boolean;
+  invoicePrefix: string;
+  updatedAt: string;
+}
+
+export interface RestaurantInfo {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  taxId?: string;
+  logo?: string;
+  updatedAt: string;
+}
+
+export interface PDFOptions {
+  id: string;
+  headerText: string;
+  footerText: string;
+  showLogo: boolean;
+  showQRCode: boolean;
+  paperSize: 'A4' | 'LETTER' | 'RECEIPT';
+  includeItemDetails: boolean;
+  updatedAt: string;
+}
+
+export interface RevenueData {
+  totalRevenue: number;
+  totalOrders: number;
+  averageOrderValue: number;
+  paymentMethodBreakdown: {
+    [key in PaymentMethod]?: number;
+  };
+}
+
+export interface BillCalculation {
+  subtotal: number;
+  taxAmount: number;
+  totalAmount: number;
+  taxRate: number;
 }

@@ -10,6 +10,7 @@ export async function seed(knex: Knex): Promise<void> {
   try {
     // First, clean up existing data in reverse dependency order
     console.log('🧹 Cleaning existing data...');
+    await knex('inventory_update_records').del();
     await knex('bills').del();
     await knex('order_items').del();
     await knex('orders').del();
