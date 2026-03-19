@@ -23,7 +23,7 @@ export const OrdersChart: React.FC<OrdersChartProps> = ({
       type: 'bar',
       height: height,
       toolbar: {
-        show: true
+        show: false
       },
       foreColor: '#9ca3af'
     },
@@ -63,7 +63,7 @@ export const OrdersChart: React.FC<OrdersChartProps> = ({
         formatter: (value) => `${value} orders`
       }
     },
-    colors: ['#4CAF50']
+    colors: ['#10b981']
   };
 
   const chartSeries = [
@@ -74,12 +74,15 @@ export const OrdersChart: React.FC<OrdersChartProps> = ({
   ];
 
   return (
-    <Card>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardHeader
         title="Daily Orders Trend"
         subheader="7-day order count progression"
+        titleTypographyProps={{ variant: 'subtitle1', fontWeight: 700 }}
+        subheaderTypographyProps={{ variant: 'caption' }}
+        sx={{ pb: 0 }}
       />
-      <CardContent>
+      <CardContent sx={{ flex: 1, pt: 1 }}>
         {error ? (
           <Alert severity="error">{error}</Alert>
         ) : loading ? (

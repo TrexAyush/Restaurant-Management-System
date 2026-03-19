@@ -23,7 +23,7 @@ export const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({
       type: 'pie',
       height: height,
       toolbar: {
-        show: true
+        show: false
       },
       foreColor: '#9ca3af'
     },
@@ -42,6 +42,11 @@ export const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({
       const method = d.paymentMethod;
       return method.charAt(0).toUpperCase() + method.slice(1);
     }) || [],
+    legend: {
+      position: 'bottom',
+      fontSize: '11px',
+      itemMargin: { horizontal: 8, vertical: 2 }
+    },
     tooltip: {
       theme: 'light',
       y: {
@@ -54,12 +59,15 @@ export const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({
   const chartSeries = data?.map(d => d.amount) || [];
 
   return (
-    <Card>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardHeader
         title="Payment Methods Distribution"
         subheader="Revenue by payment method"
+        titleTypographyProps={{ variant: 'subtitle1', fontWeight: 700 }}
+        subheaderTypographyProps={{ variant: 'caption' }}
+        sx={{ pb: 0 }}
       />
-      <CardContent>
+      <CardContent sx={{ flex: 1, pt: 1 }}>
         {error ? (
           <Alert severity="error">{error}</Alert>
         ) : loading ? (

@@ -83,7 +83,7 @@ export class MenuService {
   }
 
   /**
-   * Delete menu category (soft delete)
+   * Delete menu category (hard delete with cascade)
    */
   async deleteCategory(id: string): Promise<void> {
     // Check if category exists
@@ -92,13 +92,22 @@ export class MenuService {
       throw new Error('Category not found');
     }
 
-    // Check if category has menu items
+    // Check if any menu items in this category are referenced in orders
     const menuItems = await menuRepository.findMenuItemsByCategory(id, false);
-    if (menuItems.length > 0) {
-      throw new Error('Cannot delete category that contains menu items');
+    const itemsInOrders: string[] = [];
+    for (const item of menuItems) {
+      const hasOrders = await menuRepository.isMenuItemReferencedInOrders(item.id);
+      if (hasOrders) {
+        itemsInOrders.push(item.name);
+      }
     }
 
-    await menuRepository.deleteCategory(id);
+    if (itemsInOrders.length > 0) {
+      throw new Error(`Cannot delete category: menu items referenced in orders: ${itemsInOrders.join(', ')}`);
+    }
+
+    // Hard delete all menu items in this category, then the category itself
+    await menuRepository.hardDeleteCategory(id);
   }
 
   // Menu Item Management Methods
@@ -220,7 +229,7 @@ export class MenuService {
   }
 
   /**
-   * Delete menu item (soft delete - sets availability to false)
+   * Delete menu item (hard delete from database)
    */
   async deleteMenuItem(id: string): Promise<void> {
     // Check if menu item exists
@@ -229,7 +238,7 @@ export class MenuService {
       throw new Error('Menu item not found');
     }
 
-    await menuRepository.deleteMenuItem(id);
+    await menuRepository.hardDeleteMenuItem(id);
   }
 
   /**

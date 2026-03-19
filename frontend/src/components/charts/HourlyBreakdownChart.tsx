@@ -25,7 +25,7 @@ export const HourlyBreakdownChart: React.FC<HourlyBreakdownChartProps> = ({
       height: height,
       stacked: false,
       toolbar: {
-        show: true
+        show: false
       },
       foreColor: '#9ca3af'
     },
@@ -36,7 +36,7 @@ export const HourlyBreakdownChart: React.FC<HourlyBreakdownChartProps> = ({
       width: 2,
       curve: 'smooth'
     },
-    colors: ['#FF9800', '#2196F3'],
+    colors: ['#f59e0b', '#3b82f6'],
     grid: {
       borderColor: '#e5e7eb',
       strokeDashArray: 4,
@@ -47,6 +47,12 @@ export const HourlyBreakdownChart: React.FC<HourlyBreakdownChartProps> = ({
       axisBorder: {
         show: true,
         color: '#e5e7eb'
+      },
+      labels: {
+        rotate: -45,
+        style: {
+          fontSize: '10px'
+        }
       }
     },
     yaxis: [
@@ -54,12 +60,12 @@ export const HourlyBreakdownChart: React.FC<HourlyBreakdownChartProps> = ({
         title: {
           text: 'Number of Orders',
           style: {
-            color: '#FF9800'
+            color: '#f59e0b'
           }
         },
         labels: {
           style: {
-            colors: '#FF9800'
+            colors: '#f59e0b'
           }
         }
       },
@@ -68,12 +74,12 @@ export const HourlyBreakdownChart: React.FC<HourlyBreakdownChartProps> = ({
         title: {
           text: 'Revenue ($)',
           style: {
-            color: '#2196F3'
+            color: '#3b82f6'
           }
         },
         labels: {
           style: {
-            colors: '#2196F3'
+            colors: '#3b82f6'
           },
           formatter: (value) => `₹${value.toFixed(0)}`
         }
@@ -100,12 +106,15 @@ export const HourlyBreakdownChart: React.FC<HourlyBreakdownChartProps> = ({
   ] as ApexAxisChartSeries;
 
   return (
-    <Card>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardHeader
         title="Hourly Breakdown"
         subheader="Orders and revenue by hour of day"
+        titleTypographyProps={{ variant: 'subtitle1', fontWeight: 700 }}
+        subheaderTypographyProps={{ variant: 'caption' }}
+        sx={{ pb: 0 }}
       />
-      <CardContent>
+      <CardContent sx={{ flex: 1, pt: 1 }}>
         {error ? (
           <Alert severity="error">{error}</Alert>
         ) : loading ? (

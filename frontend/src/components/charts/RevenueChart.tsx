@@ -23,16 +23,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({
       type: 'area',
       height: height,
       toolbar: {
-        show: true,
-        tools: {
-          download: true,
-          selection: true,
-          zoom: true,
-          zoomin: true,
-          zoomout: true,
-          pan: true,
-          reset: true
-        }
+        show: false
       },
       foreColor: '#9ca3af'
     },
@@ -54,12 +45,12 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({
         colorStops: [
           {
             offset: 0,
-            color: '#2196F3',
+            color: '#6366f1',
             opacity: 0.4
           },
           {
             offset: 100,
-            color: '#2196F3',
+            color: '#6366f1',
             opacity: 0.05
           }
         ]
@@ -88,7 +79,7 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({
         formatter: (value) => `₹${value.toFixed(2)}`
       }
     },
-    colors: ['#2196F3']
+    colors: ['#6366f1']
   };
 
   const chartSeries = [
@@ -99,12 +90,15 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({
   ];
 
   return (
-    <Card>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardHeader
         title="Daily Revenue Trend"
         subheader="7-day revenue progression"
+        titleTypographyProps={{ variant: 'subtitle1', fontWeight: 700 }}
+        subheaderTypographyProps={{ variant: 'caption' }}
+        sx={{ pb: 0 }}
       />
-      <CardContent>
+      <CardContent sx={{ flex: 1, pt: 1 }}>
         {error ? (
           <Alert severity="error">{error}</Alert>
         ) : loading ? (

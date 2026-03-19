@@ -8,7 +8,9 @@ import {
   CardContent,
   CardActions,
   Button,
-  Divider
+  Divider,
+  Chip,
+  Stack
 } from '@mui/material';
 import {
   Restaurant,
@@ -117,18 +119,74 @@ export const Dashboard: React.FC = () => {
     return 'Good Evening';
   };
 
+  const spotlightStats = [
+    { label: 'Accessible Modules', value: filteredCards.length.toString().padStart(2, '0') },
+    { label: 'Role', value: user?.role.replace('_', ' ')?.toUpperCase() || 'UNKNOWN' },
+    { label: 'Shift Mode', value: new Date().getHours() < 18 ? 'DAY' : 'EVENING' },
+  ];
+
   return (
     <Box>
-      <Paper sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-        <Typography variant="h4" gutterBottom>
-          {getGreeting()}, {user?.firstName}!
-        </Typography>
-        <Typography variant="h6" sx={{ opacity: 0.9 }}>
-          Welcome to the Restaurant Management System
-        </Typography>
-        <Typography variant="body1" sx={{ mt: 1, opacity: 0.8 }}>
-          Role: {user?.role.replace('_', ' ').toUpperCase()}
-        </Typography>
+      <Paper
+        sx={{
+          p: { xs: 3, md: 4 },
+          mb: 3,
+          overflow: 'hidden',
+          position: 'relative',
+          background:
+            'radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 24%), linear-gradient(135deg, #312e81 0%, #4f46e5 42%, #0ea5e9 100%)',
+          color: 'white',
+          border: 'none',
+          boxShadow: '0 24px 48px -24px rgba(79, 70, 229, 0.45)',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'linear-gradient(135deg, rgba(255,255,255,0.06) 25%, transparent 25%) -20px 0 / 40px 40px',
+            opacity: 0.45,
+          }}
+        />
+        <Box sx={{ position: 'relative' }}>
+          <Chip
+            label="Operations Overview"
+            sx={{
+              mb: 2,
+              bgcolor: 'rgba(255,255,255,0.12)',
+              color: 'white',
+              border: '1px solid rgba(255,255,255,0.2)',
+            }}
+          />
+          <Typography variant="h3" gutterBottom>
+            {getGreeting()}, {user?.firstName || user?.username}.
+          </Typography>
+          <Typography variant="h6" sx={{ opacity: 0.92, maxWidth: 720, fontWeight: 400 }}>
+            Keep service moving with a sharper view of orders, team activity, table status, and business health.
+          </Typography>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mt: 3.5 }}>
+            {spotlightStats.map((item) => (
+              <Paper
+                key={item.label}
+                sx={{
+                  px: 2,
+                  py: 1.5,
+                  minWidth: 180,
+                  bgcolor: 'rgba(255,255,255,0.12)',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.16)',
+                  backdropFilter: 'blur(12px)',
+                }}
+              >
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.72)', display: 'block', mb: 0.5 }}>
+                  {item.label}
+                </Typography>
+                <Typography variant="h6">{item.value}</Typography>
+              </Paper>
+            ))}
+          </Stack>
+        </Box>
       </Paper>
 
       {/* KPIs Section */}
@@ -162,15 +220,30 @@ export const Dashboard: React.FC = () => {
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
+                background:
+                  'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)',
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 4
-                }
+                  transform: 'translateY(-6px)',
+                  boxShadow: 4,
+                },
               }}
             >
-              <CardContent sx={{ flexGrow: 1, textAlign: 'center', pt: 3 }}>
-                <Box sx={{ color: card.color, mb: 2 }}>
+              <CardContent sx={{ flexGrow: 1, textAlign: 'center', pt: 3.5, px: 3 }}>
+                <Box
+                  sx={{
+                    color: card.color,
+                    mb: 2.25,
+                    width: 72,
+                    height: 72,
+                    borderRadius: '16px',
+                    mx: 'auto',
+                    display: 'grid',
+                    placeItems: 'center',
+                    background: `${card.color}16`,
+                    border: `1px solid ${card.color}28`,
+                  }}
+                >
                   {card.icon}
                 </Box>
                 <Typography variant="h6" component="h2" gutterBottom>
@@ -185,11 +258,12 @@ export const Dashboard: React.FC = () => {
                   variant="contained"
                   onClick={() => navigate(card.path)}
                   sx={{
+                    minWidth: 120,
                     backgroundColor: card.color,
                     '&:hover': {
                       backgroundColor: card.color,
-                      opacity: 0.8
-                    }
+                      opacity: 0.88,
+                    },
                   }}
                 >
                   Open

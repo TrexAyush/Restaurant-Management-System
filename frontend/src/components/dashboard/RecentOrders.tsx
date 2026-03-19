@@ -83,6 +83,8 @@ export const RecentOrders: React.FC = () => {
   useEffect(() => {
     if (canViewOrders) {
       loadRecentOrders();
+      const interval = setInterval(loadRecentOrders, 60000);
+      return () => clearInterval(interval);
     }
   }, [canViewOrders]);
 

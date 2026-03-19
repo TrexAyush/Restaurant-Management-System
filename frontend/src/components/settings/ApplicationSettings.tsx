@@ -14,7 +14,9 @@ import {
   MenuItem,
   Divider,
   Tabs,
-  Tab
+  Tab,
+  Paper,
+  Stack
 } from '@mui/material';
 import {
   Save as SaveIcon,
@@ -158,19 +160,32 @@ export const ApplicationSettings: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" component="h1" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SettingsIcon /> Application Settings
-        </Typography>
-        <Button
-          variant="outlined"
-          startIcon={<RefreshIcon />}
-          onClick={loadSettings}
-          disabled={saving}
-        >
-          Refresh
-        </Button>
-      </Box>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.08) 100%)',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+              Application Settings
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Configure billing, restaurant info, and invoice customization.
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            startIcon={<RefreshIcon />}
+            onClick={loadSettings}
+            disabled={saving}
+          >
+            Refresh
+          </Button>
+        </Stack>
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>

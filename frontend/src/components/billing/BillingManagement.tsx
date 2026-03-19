@@ -25,7 +25,8 @@ import {
   MenuItem,
   Grid,
   Card,
-  CardContent
+  CardContent,
+  Stack
 } from '@mui/material';
 import {
   Payment as PaymentIcon,
@@ -234,26 +235,39 @@ export const BillingManagement: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Billing Management
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          {canProcessPayments && (
-            <Button
-              variant="contained"
-              startIcon={<ReceiptIcon />}
-              onClick={handleOpenGenerateBillDialog}
-              disabled={loadingOrders}
-            >
-              {loadingOrders ? <CircularProgress size={20} /> : 'Generate Bill'}
-            </Button>
-          )}
-          <IconButton onClick={loadBills} title="Refresh" disabled={loading}>
-            <RefreshIcon />
-          </IconButton>
-        </Box>
-      </Box>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(139,92,246,0.1) 0%, rgba(99,102,241,0.08) 100%)',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+              Billing Management
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Process payments, generate invoices, and track revenue across all service channels.
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {canProcessPayments && (
+              <Button
+                variant="contained"
+                startIcon={<ReceiptIcon />}
+                onClick={handleOpenGenerateBillDialog}
+                disabled={loadingOrders}
+              >
+                {loadingOrders ? <CircularProgress size={20} /> : 'Generate Bill'}
+              </Button>
+            )}
+            <IconButton onClick={loadBills} title="Refresh" disabled={loading} sx={{ bgcolor: 'background.paper' }}>
+              <RefreshIcon />
+            </IconButton>
+          </Box>
+        </Stack>
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -295,11 +309,11 @@ export const BillingManagement: React.FC = () => {
                   sx={{
                     p: 2,
                     mb: 1,
-                    border: '1px solid #ddd',
-                    borderRadius: 1,
+                    border: '1px solid',
+                    borderRadius: 2,
                     cursor: 'pointer',
-                    backgroundColor: selectedOrder?.id === order.id ? '#e3f2fd' : 'white',
-                    borderColor: selectedOrder?.id === order.id ? '#2196f3' : '#ddd',
+                    backgroundColor: selectedOrder?.id === order.id ? 'rgba(99, 102, 241, 0.08)' : 'background.paper',
+                    borderColor: selectedOrder?.id === order.id ? 'primary.main' : 'divider',
                   }}
                   onClick={() => setSelectedOrder(order)}
                 >
@@ -351,60 +365,63 @@ export const BillingManagement: React.FC = () => {
       )}
 
       {/* Summary Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={2.5} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="warning.main">
+          <Card sx={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)' }}>
+            <CardContent sx={{ p: 2.5 }}>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                 Pending Bills
               </Typography>
-              <Typography variant="h4">
+              <Typography variant="h4" sx={{ fontWeight: 700, color: 'warning.main' }}>
                 {pendingBills.length}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                 ₹{pendingBills.reduce((sum, bill) => sum + bill.totalAmount, 0).toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="success.main">
+          <Card sx={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)' }}>
+            <CardContent sx={{ p: 2.5 }}>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                 Paid Bills
               </Typography>
-              <Typography variant="h4">
+              <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
                 {paidBills.length}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                 ₹{totalRevenue.toFixed(2)}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="primary">
+          <Card sx={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)' }}>
+            <CardContent sx={{ p: 2.5 }}>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                 Total Bills
               </Typography>
-              <Typography variant="h4">
+              <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
                 {Array.isArray(bills) ? bills.length : 0}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                 ₹{Array.isArray(bills) ? bills.reduce((sum, bill) => sum + bill.totalAmount, 0).toFixed(2) : '0.00'}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="info.main">
+          <Card sx={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%)' }}>
+            <CardContent sx={{ p: 2.5 }}>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                 Avg. Bill Value
               </Typography>
-              <Typography variant="h4">
+              <Typography variant="h4" sx={{ fontWeight: 700, color: 'info.main' }}>
                 ₹{Array.isArray(bills) && bills.length > 0 ? (bills.reduce((sum, bill) => sum + bill.totalAmount, 0) / bills.length).toFixed(2) : '0.00'}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Across all bills
               </Typography>
             </CardContent>
           </Card>

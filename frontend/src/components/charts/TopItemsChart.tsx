@@ -23,7 +23,7 @@ export const TopItemsChart: React.FC<TopItemsChartProps> = ({
       type: 'donut',
       height: height,
       toolbar: {
-        show: true
+        show: false
       },
       foreColor: '#9ca3af'
     },
@@ -52,6 +52,11 @@ export const TopItemsChart: React.FC<TopItemsChartProps> = ({
       }
     },
     labels: data?.map(d => d.menuItemName) || [],
+    legend: {
+      position: 'bottom',
+      fontSize: '11px',
+      itemMargin: { horizontal: 6, vertical: 2 }
+    },
     tooltip: {
       theme: 'light',
       y: {
@@ -64,12 +69,15 @@ export const TopItemsChart: React.FC<TopItemsChartProps> = ({
   const chartSeries = data?.map(d => d.totalRevenue) || [];
 
   return (
-    <Card>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardHeader
         title="Top Selling Items"
         subheader="Revenue distribution by top items"
+        titleTypographyProps={{ variant: 'subtitle1', fontWeight: 700 }}
+        subheaderTypographyProps={{ variant: 'caption' }}
+        sx={{ pb: 0 }}
       />
-      <CardContent>
+      <CardContent sx={{ flex: 1, pt: 1, overflow: 'hidden' }}>
         {error ? (
           <Alert severity="error">{error}</Alert>
         ) : loading ? (

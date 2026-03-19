@@ -6,14 +6,14 @@ import {
   CardContent,
   Typography,
   Button,
-  Chip,
   Alert,
   CircularProgress,
   IconButton,
   List,
   ListItem,
   ListItemText,
-  Divider
+  Divider,
+  Paper
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -108,16 +108,6 @@ export const KitchenDisplay: React.FC = () => {
     return `${mins}m`;
   };
 
-  const getStatusColor = (status: OrderStatus) => {
-    const colors: Record<OrderStatus, 'default' | 'primary' | 'warning' | 'success'> = {
-      [OrderStatus.PLACED]: 'default',
-      [OrderStatus.PREPARING]: 'primary',
-      [OrderStatus.READY]: 'warning',
-      [OrderStatus.SERVED]: 'success'
-    };
-    return colors[status];
-  };
-
   const getCardColor = (status: OrderStatus, createdAt: string) => {
     const duration = new Date().getTime() - new Date(createdAt).getTime();
     const minutes = Math.floor(duration / (1000 * 60));
@@ -143,14 +133,27 @@ export const KitchenDisplay: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Kitchen Display
-        </Typography>
-        <IconButton onClick={loadKitchenOrders} title="Refresh" disabled={loading}>
-          <RefreshIcon />
-        </IconButton>
-      </Box>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(239,68,68,0.08) 100%)',
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+              Kitchen Display
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Prioritize tickets by age, move dishes through prep, and keep pickup visibility clear.
+            </Typography>
+          </Box>
+          <IconButton onClick={loadKitchenOrders} title="Refresh" disabled={loading} sx={{ bgcolor: 'background.paper' }}>
+            <RefreshIcon />
+          </IconButton>
+        </Box>
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -170,7 +173,7 @@ export const KitchenDisplay: React.FC = () => {
           <Typography variant="h6" gutterBottom color="text.secondary">
             New Orders ({groupedOrders.placed.length})
           </Typography>
-          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: '#acacac20', p: 1, borderRadius: 6, border: '1px solid #c8e6c9' }}>
+          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: 'rgba(255,255,255,0.72)', p: 1.25, borderRadius: '14px', border: '1px solid #dbeafe', backdropFilter: 'blur(8px)' }}>
             {groupedOrders.placed.map((order) => (
               <Card
                 key={order.id}
@@ -179,7 +182,7 @@ export const KitchenDisplay: React.FC = () => {
                   backgroundColor: getCardColor(order.status, order.createdAt),
                   border: '2px solid',
                   borderColor: 'primary.main',
-                  borderRadius: 4
+                  borderRadius: '14px'
                 }}
               >
                 <CardContent>
@@ -239,7 +242,7 @@ export const KitchenDisplay: React.FC = () => {
           <Typography variant="h6" gutterBottom color="text.secondary">
             Preparing ({groupedOrders.preparing.length})
           </Typography>
-          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: '#acacac20', p: 1, borderRadius: 6, border: '1px solid #bbdefb' }}>
+          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: 'rgba(255,255,255,0.72)', p: 1.25, borderRadius: '14px', border: '1px solid #fde68a', backdropFilter: 'blur(8px)' }}>
             {groupedOrders.preparing.map((order) => (
               <Card
                 key={order.id}
@@ -248,7 +251,7 @@ export const KitchenDisplay: React.FC = () => {
                   backgroundColor: getCardColor(order.status, order.createdAt),
                   border: '2px solid',
                   borderColor: 'warning.main',
-                  borderRadius: 4
+                  borderRadius: '14px'
                 }}
               >
                 <CardContent>
@@ -309,7 +312,7 @@ export const KitchenDisplay: React.FC = () => {
           <Typography variant="h6" gutterBottom color="text.secondary">
             Ready for Pickup ({groupedOrders.ready.length})
           </Typography>
-          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: '#acacac20', p: 1, borderRadius: 6, border: '1px solid #c8e6c9' }}>
+          <Box sx={{ maxHeight: '76vh', minHeight: '76vh', overflowY: 'auto', bgcolor: 'rgba(255,255,255,0.72)', p: 1.25, borderRadius: '14px', border: '1px solid #bbf7d0', backdropFilter: 'blur(8px)' }}>
             {groupedOrders.ready.map((order) => (
               <Card
                 key={order.id}
@@ -318,7 +321,7 @@ export const KitchenDisplay: React.FC = () => {
                   backgroundColor: getCardColor(order.status, order.createdAt),
                   border: '2px solid',
                   borderColor: 'success.main',
-                  borderRadius: 4
+                  borderRadius: '14px'
                 }}
               >
                 <CardContent>

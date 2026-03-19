@@ -20,7 +20,8 @@ import {
   Select,
   MenuItem,
   TextField,
-  InputAdornment
+  InputAdornment,
+  Stack
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -57,7 +58,7 @@ export const OrderManagement: React.FC = () => {
 
   useEffect(() => {
     loadOrders();
-  }, [page, rowsPerPage, statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [page, rowsPerPage, statusFilter, searchTerm]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadOrders = async () => {
     try {
@@ -142,11 +143,23 @@ export const OrderManagement: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Order Management
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(14,165,233,0.08) 100%)',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+              Order Management
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Track active tickets, monitor service cadence, and inspect order details in one place.
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
           <IconButton onClick={loadOrders} title="Refresh">
             <RefreshIcon />
           </IconButton>
@@ -159,8 +172,9 @@ export const OrderManagement: React.FC = () => {
               New Order
             </Button>
           )}
-        </Box>
-      </Box>
+          </Box>
+        </Stack>
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -175,12 +189,12 @@ export const OrderManagement: React.FC = () => {
       )}
 
       {/* Filters */}
-      <Paper sx={{ p: 2, mb: 2 }}>
+      <Paper sx={{ p: 2.5, mb: 2.5 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
           <Box sx={{ minWidth: 200, flexGrow: 1 }}>
             <TextField
               fullWidth
-              placeholder="Search orders..."
+              placeholder="Search by table, waiter, or order id"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -212,7 +226,7 @@ export const OrderManagement: React.FC = () => {
         </Box>
       </Paper>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ overflow: 'hidden' }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -231,7 +245,7 @@ export const OrderManagement: React.FC = () => {
             {orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell>
-                  <Typography variant="body2" fontFamily="monospace">
+                  <Typography variant="body2" fontFamily="monospace" sx={{ color: 'primary.main', fontWeight: 700 }}>
                     {order.id.slice(-8)}
                   </Typography>
                 </TableCell>
@@ -258,7 +272,7 @@ export const OrderManagement: React.FC = () => {
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="subtitle2" fontWeight="bold">
+                  <Typography variant="subtitle2" fontWeight="bold" sx={{ color: 'secondary.main' }}>
                     ₹{order.totalAmount?.toFixed(2) || '0.00'}
                   </Typography>
                 </TableCell>

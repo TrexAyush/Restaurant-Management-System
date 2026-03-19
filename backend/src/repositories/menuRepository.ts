@@ -123,6 +123,46 @@ export class MenuRepository {
   }
 
   /**
+   * Check if a menu item is referenced in any orders
+   */
+  async isMenuItemReferencedInOrders(id: string): Promise<boolean> {
+    const ref = await knex('order_items').where({ menu_item_id: id }).first();
+    return !!ref;
+  }
+
+  /**
+   * Hard delete category and all its menu items (cascade)
+   */
+  async hardDeleteCategory(id: string): Promise<void> {
+    await knex.transaction(async (trx) => {
+      // Delete all ingredients for items in this category
+      const itemIds = await trx(this.menuItemsTable)
+        .where({ category_id: id })
+        .select('id');
+
+      if (itemIds.length > 0) {
+        await trx(this.ingredientsTable)
+          .whereIn('menu_item_id', itemIds.map((i: any) => i.id))
+          .del();
+
+        // Delete all menu items in this category
+        await trx(this.menuItemsTable)
+          .where({ category_id: id })
+          .del();
+      }
+
+      // Delete the category itself
+      const deleted = await trx(this.categoriesTable)
+        .where({ id })
+        .del();
+
+      if (deleted === 0) {
+        throw new Error('Category not found');
+      }
+    });
+  }
+
+  /**
    * Check if category name exists
    */
   async categoryNameExists(name: string, excludeId?: string): Promise<boolean> {

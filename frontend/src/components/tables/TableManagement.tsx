@@ -201,20 +201,33 @@ export const TableManagement: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Table Management
-        </Typography>
-        {canManageTables && (
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateTable}
-          >
-            Add Table
-          </Button>
-        )}
-      </Box>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.08) 100%)',
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+              Table Management
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              See availability at a glance and keep seating capacity organized across the floor.
+            </Typography>
+          </Box>
+          {canManageTables && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleCreateTable}
+            >
+              Add Table
+            </Button>
+          )}
+        </Box>
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -229,7 +242,7 @@ export const TableManagement: React.FC = () => {
       )}
 
       {/* Table Statistics */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper sx={{ p: 2.5, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Table Overview
         </Typography>
@@ -286,13 +299,28 @@ export const TableManagement: React.FC = () => {
                 height: '100%',
                 border: table.status === TableStatus.OCCUPIED ? '2px solid' : '1px solid',
                 borderColor: table.status === TableStatus.OCCUPIED ? 'warning.main' : 'divider',
-                position: 'relative'
+                position: 'relative',
+                background:
+                  table.status === TableStatus.OCCUPIED
+                    ? 'linear-gradient(180deg, #ffffff 0%, #fffaf0 100%)'
+                    : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)'
               }}
             >
-              <CardContent>
+              <CardContent sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <TableIcon color="primary" />
+                    <Box
+                      sx={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: '10px',
+                        display: 'grid',
+                        placeItems: 'center',
+                        backgroundColor: 'primary.light',
+                      }}
+                    >
+                      <TableIcon color="primary" />
+                    </Box>
                     <Typography variant="h6" component="h2">
                       Table {table.number}
                     </Typography>

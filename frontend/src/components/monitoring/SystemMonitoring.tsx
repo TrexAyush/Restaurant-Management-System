@@ -20,7 +20,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Stack
 } from '@mui/material';
 import {
   CheckCircle,
@@ -167,24 +168,37 @@ export const SystemMonitoring: React.FC = () => {
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          System Monitoring
-        </Typography>
-        <Button
-          variant="outlined"
-          startIcon={<Refresh />}
-          onClick={() => {
-            setLoading(true);
-            Promise.all([
-              fetchSystemStats(),
-              fetchErrorLogs()
-            ]).then(() => setLoading(false));
-          }}
-        >
-          Refresh
-        </Button>
-      </Box>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(14,165,233,0.08) 100%)',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+              System Monitoring
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Track system health, API performance, and error logs in real time.
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            startIcon={<Refresh />}
+            onClick={() => {
+              setLoading(true);
+              Promise.all([
+                fetchSystemStats(),
+                fetchErrorLogs()
+              ]).then(() => setLoading(false));
+            }}
+          >
+            Refresh
+          </Button>
+        </Stack>
+      </Paper>
 
       <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 3 }}>
         <Tab label="Overview" />

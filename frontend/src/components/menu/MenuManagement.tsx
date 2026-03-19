@@ -5,7 +5,8 @@ import {
   Tab,
   Paper,
   Typography,
-  Alert
+  Alert,
+  Stack
 } from '@mui/material';
 import {
   Category as CategoryIcon,
@@ -63,9 +64,22 @@ export const MenuManagement: React.FC = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Typography variant="h4" component="h1" gutterBottom align="left">
-        Menu Management
-      </Typography>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(99,102,241,0.08) 100%)',
+        }}
+      >
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+            Menu Management
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Organize categories, fine-tune items and pricing, and preview the live customer menu.
+          </Typography>
+        </Box>
+      </Paper>
       
       {!canManageMenu && (
         <Alert severity="warning" sx={{ mb: 2 }}>

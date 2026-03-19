@@ -347,7 +347,9 @@ export class ReportingController {
         today: {
           revenue: todayReport.totalRevenue,
           orders: todayReport.totalOrders,
-          averageOrderValue: todayReport.averageOrderValue
+          averageOrderValue: todayReport.averageOrderValue,
+          revenueByPaymentMethod: todayReport.revenueByPaymentMethod,
+          ordersByHour: todayReport.ordersByHour
         },
         yesterday: {
           revenue: yesterdayReport.totalRevenue,

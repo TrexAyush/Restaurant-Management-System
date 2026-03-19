@@ -33,6 +33,12 @@ interface SalesTrendData {
     revenue: number;
     orders: number;
     averageOrderValue: number;
+    revenueByPaymentMethod?: Record<string, number>;
+    ordersByHour?: Array<{
+      hour: number;
+      count: number;
+      revenue: number;
+    }>;
   };
   yesterday: {
     revenue: number;
@@ -51,16 +57,6 @@ interface SalesTrendData {
     }>;
   };
   topItems: TopItem[];
-  today_data?: {
-    revenue?: number;
-    totalRevenue?: number;
-    revenueByPaymentMethod?: Record<string, number>;
-    ordersByHour?: Array<{
-      hour: number;
-      count: number;
-      revenue: number;
-    }>;
-  };
 }
 
 export const SalesTrends: React.FC = () => {
@@ -74,6 +70,8 @@ export const SalesTrends: React.FC = () => {
   useEffect(() => {
     if (canViewTrends) {
       loadTrendData();
+      const interval = setInterval(loadTrendData, 60000);
+      return () => clearInterval(interval);
     }
   }, [canViewTrends]);
 
@@ -106,14 +104,14 @@ export const SalesTrends: React.FC = () => {
     orders: day.orders
   })) || [];
 
-  const paymentMethodData = trendData?.today_data?.revenueByPaymentMethod
-    ? Object.entries(trendData.today_data.revenueByPaymentMethod).map(([method, amount]) => ({
+  const paymentMethodData = trendData?.today?.revenueByPaymentMethod
+    ? Object.entries(trendData.today.revenueByPaymentMethod).map(([method, amount]) => ({
         paymentMethod: method,
         amount: Number(amount) || 0
       }))
     : [];
 
-  const hourlyData = trendData?.today_data?.ordersByHour || [];
+  const hourlyData = trendData?.today?.ordersByHour || [];
 
   const topItemsData = trendData?.topItems?.slice(0, 5).map(item => ({
     menuItemName: item.menuItemName,
@@ -133,87 +131,87 @@ export const SalesTrends: React.FC = () => {
         📊 Sales Analytics & Trends
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         {/* Revenue Trend Chart */}
-        <Grid size={{ xs: 12, lg: 6 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           {loading ? (
-            <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 1 }} />
           ) : (
             <RevenueChart
               data={revenueChartData}
               loading={loading}
               error={error}
-              height={400}
+              height={280}
             />
           )}
         </Grid>
 
         {/* Orders Trend Chart */}
-        <Grid size={{ xs: 12, lg: 6 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           {loading ? (
-            <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 1 }} />
           ) : (
             <OrdersChart
               data={ordersChartData}
               loading={loading}
               error={error}
-              height={400}
+              height={280}
             />
           )}
         </Grid>
 
         {/* Hourly Breakdown Chart */}
-        <Grid size={{ xs: 12, lg: 6 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           {loading ? (
-            <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 1 }} />
           ) : (
             <HourlyBreakdownChart
               data={hourlyData}
               loading={loading}
               error={error}
-              height={400}
+              height={280}
             />
           )}
         </Grid>
 
         {/* Payment Method Distribution */}
-        <Grid size={{ xs: 12, lg: 6 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           {loading ? (
-            <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 1 }} />
           ) : (
             <PaymentMethodChart
               data={paymentMethodData}
               loading={loading}
               error={error}
-              height={400}
+              height={280}
             />
           )}
         </Grid>
 
         {/* Top Items Revenue */}
-        <Grid size={{ xs: 12, lg: 6 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           {loading ? (
-            <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 1 }} />
           ) : (
             <TopItemsChart
               data={topItemsData}
               loading={loading}
               error={error}
-              height={400}
+              height={280}
             />
           )}
         </Grid>
 
         {/* Item Quantity Chart */}
-        <Grid size={{ xs: 12, lg: 6 }}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           {loading ? (
-            <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 1 }} />
           ) : (
             <ItemQuantityChart
               data={itemQuantityData}
               loading={loading}
               error={error}
-              height={400}
+              height={280}
               limit={8}
             />
           )}
@@ -221,7 +219,7 @@ export const SalesTrends: React.FC = () => {
 
         {/* Summary Statistics */}
         <Grid size={{ xs: 12 }}>
-          <Paper sx={{ p: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+          <Paper sx={{ p: 3, background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', color: 'white' }}>
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <Box>

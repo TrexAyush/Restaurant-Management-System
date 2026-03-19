@@ -27,7 +27,7 @@ export const ItemQuantityChart: React.FC<ItemQuantityChartProps> = ({
       type: 'bar',
       height: height,
       toolbar: {
-        show: true
+        show: false
       },
       foreColor: '#9ca3af'
     },
@@ -64,7 +64,7 @@ export const ItemQuantityChart: React.FC<ItemQuantityChartProps> = ({
         show: true
       }
     },
-    colors: ['#9C27B0']
+    colors: ['#8b5cf6']
   };
 
   const chartSeries = [
@@ -77,12 +77,15 @@ export const ItemQuantityChart: React.FC<ItemQuantityChartProps> = ({
   const categories = topData?.map(d => d.menuItemName.substring(0, 20)) || [];
 
   return (
-    <Card>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardHeader
         title="Most Ordered Items"
         subheader={`Top ${limit} items by quantity sold`}
+        titleTypographyProps={{ variant: 'subtitle1', fontWeight: 700 }}
+        subheaderTypographyProps={{ variant: 'caption' }}
+        sx={{ pb: 0 }}
       />
-      <CardContent>
+      <CardContent sx={{ flex: 1, pt: 1 }}>
         {error ? (
           <Alert severity="error">{error}</Alert>
         ) : loading ? (

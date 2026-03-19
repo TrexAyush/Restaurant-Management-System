@@ -14,7 +14,8 @@ import {
   FormControl,
   InputLabel,
   Alert,
-  Chip
+  Chip,
+  Stack
 } from '@mui/material';
 import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
 import { Add, Edit, Delete, Lock, LockOpen } from '@mui/icons-material';
@@ -276,18 +277,31 @@ export const UserManagement: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          User Management
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={handleCreateUser}
-        >
-          Add User
-        </Button>
-      </Box>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(236,72,153,0.1) 0%, rgba(139,92,246,0.08) 100%)',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+              User Management
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Manage staff accounts, assign roles, and control access permissions.
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={handleCreateUser}
+          >
+            Add User
+          </Button>
+        </Stack>
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>

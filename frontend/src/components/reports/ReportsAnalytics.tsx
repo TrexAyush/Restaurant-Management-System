@@ -19,7 +19,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip
+  Chip,
+  Stack
 } from '@mui/material';
 import {
   Download as DownloadIcon,
@@ -128,19 +129,32 @@ export const ReportsAnalytics: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Reports & Analytics
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AssessmentIcon />}
-          onClick={loadReports}
-          disabled={loading}
-        >
-          {loading ? <CircularProgress size={20} /> : 'Refresh Reports'}
-        </Button>
-      </Box>
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 3 },
+          mb: 3,
+          background: 'linear-gradient(135deg, rgba(14,165,233,0.1) 0%, rgba(99,102,241,0.1) 100%)',
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Box>
+            <Typography variant="h4" component="h1" sx={{ mb: 0.75 }}>
+              Reports & Analytics
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Review revenue, order volume, and inventory movement with export-ready summaries.
+            </Typography>
+          </Box>
+          <Button
+            variant="contained"
+            startIcon={<AssessmentIcon />}
+            onClick={loadReports}
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={20} /> : 'Refresh Reports'}
+          </Button>
+        </Stack>
+      </Paper>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -149,7 +163,7 @@ export const ReportsAnalytics: React.FC = () => {
       )}
 
       {/* Report Filters */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper sx={{ p: 2.5, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Report Filters
         </Typography>
@@ -240,9 +254,9 @@ export const ReportsAnalytics: React.FC = () => {
           </Box>
 
           {/* Sales Summary Cards */}
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2, mb: 3 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 2, mb: 3 }}>
             <Card>
-              <CardContent>
+              <CardContent sx={{ p: 2.5 }}>
                 <Typography variant="h6" color="primary">
                   Total Revenue
                 </Typography>
@@ -252,7 +266,7 @@ export const ReportsAnalytics: React.FC = () => {
               </CardContent>
             </Card>
             <Card>
-              <CardContent>
+              <CardContent sx={{ p: 2.5 }}>
                 <Typography variant="h6" color="secondary">
                   Total Orders
                 </Typography>
@@ -262,7 +276,7 @@ export const ReportsAnalytics: React.FC = () => {
               </CardContent>
             </Card>
             <Card>
-              <CardContent>
+              <CardContent sx={{ p: 2.5 }}>
                 <Typography variant="h6" color="success.main">
                   Avg. Order Value
                 </Typography>
@@ -272,7 +286,7 @@ export const ReportsAnalytics: React.FC = () => {
               </CardContent>
             </Card>
             <Card>
-              <CardContent>
+              <CardContent sx={{ p: 2.5 }}>
                 <Typography variant="h6" color="info.main">
                   Top Items Sold
                 </Typography>
