@@ -1,7 +1,12 @@
 import PDFDocument from 'pdfkit';
+import path from 'path';
 import { Bill } from '../models/Bill';
 import { Order } from '../models/Order';
 import { PaymentMethod } from '../models/enums';
+
+const FONTS_DIR = path.join(__dirname, '..', 'assets', 'fonts');
+const FONT_REGULAR = path.join(FONTS_DIR, 'NotoSans-Regular.ttf');
+const FONT_BOLD = path.join(FONTS_DIR, 'NotoSans-Bold.ttf');
 
 export interface InvoiceData {
   bill: Bill;
@@ -77,6 +82,10 @@ export class PDFService {
           size: finalOptions.format,
           margins: finalOptions.margins
         });
+
+        // Register Unicode fonts that support the Rupee symbol (₹)
+        doc.registerFont('NotoSans', FONT_REGULAR);
+        doc.registerFont('NotoSans-Bold', FONT_BOLD);
 
         const buffers: Buffer[] = [];
         
@@ -155,14 +164,14 @@ export class PDFService {
 
     // Restaurant name
     doc.fontSize(24)
-       .font('Helvetica-Bold')
+       .font('NotoSans-Bold')
        .text(restaurantInfo.name, margins.left, startY, { align: 'center' });
 
     let currentY = startY + 30;
 
     // Restaurant details
     doc.fontSize(10)
-       .font('Helvetica')
+       .font('NotoSans')
        .text(restaurantInfo.address, margins.left, currentY, { align: 'center' });
 
     currentY += 15;
@@ -196,7 +205,7 @@ export class PDFService {
 
     // Invoice title
     doc.fontSize(18)
-       .font('Helvetica-Bold')
+       .font('NotoSans-Bold')
        .text('INVOICE', margins.left, startY);
 
     // Invoice details
@@ -204,7 +213,7 @@ export class PDFService {
     const invoiceTime = bill.generatedAt.toLocaleTimeString();
 
     doc.fontSize(10)
-       .font('Helvetica')
+       .font('NotoSans')
        .text(`Invoice #: ${bill.id.substring(0, 8).toUpperCase()}`, margins.left, startY + 25)
        .text(`Date: ${invoiceDate}`, margins.left, startY + 40)
        .text(`Time: ${invoiceTime}`, margins.left, startY + 55);
@@ -214,7 +223,7 @@ export class PDFService {
                        bill.paymentStatus === 'cancelled' ? 'red' : 'orange';
     
     doc.fontSize(12)
-       .font('Helvetica-Bold')
+       .font('NotoSans-Bold')
        .fillColor(statusColor)
        .text(`Status: ${bill.paymentStatus.toUpperCase()}`, 
              doc.page.width - margins.right - 100, startY + 25)
@@ -235,13 +244,13 @@ export class PDFService {
     const margins = doc.page.margins;
 
     doc.fontSize(12)
-       .font('Helvetica-Bold')
+       .font('NotoSans-Bold')
        .text('Customer Information:', margins.left, startY);
 
     let currentY = startY + 20;
 
     doc.fontSize(10)
-       .font('Helvetica')
+       .font('NotoSans')
        .text(`Table: ${order.tableId}`, margins.left, currentY);
 
     if (customerInfo.name) {
@@ -276,7 +285,7 @@ export class PDFService {
 
     // Table header
     doc.fontSize(12)
-       .font('Helvetica-Bold')
+       .font('NotoSans-Bold')
        .text('Order Details:', margins.left, startY);
 
     let currentY = startY + 25;
@@ -290,7 +299,7 @@ export class PDFService {
     };
 
     doc.fontSize(10)
-       .font('Helvetica-Bold')
+       .font('NotoSans-Bold')
        .text('Item', margins.left, currentY)
        .text('Qty', margins.left + colWidths.item, currentY)
        .text('Unit Price', margins.left + colWidths.item + colWidths.quantity, currentY)
@@ -306,7 +315,7 @@ export class PDFService {
     currentY += 10;
 
     // Order items
-    doc.font('Helvetica');
+    doc.font('NotoSans');
     
     for (const item of order.items) {
       const itemTotal = item.quantity * item.unitPrice;
@@ -368,7 +377,7 @@ export class PDFService {
 
     // Subtotal
     doc.fontSize(10)
-       .font('Helvetica')
+       .font('NotoSans')
        .text('Subtotal:', summaryX, currentY)
        .text(`₹${bill.subtotal.toFixed(2)}`, summaryX + 100, currentY);
 
@@ -393,7 +402,7 @@ export class PDFService {
 
     // Total amount
     doc.fontSize(12)
-       .font('Helvetica-Bold')
+       .font('NotoSans-Bold')
        .text('Total:', summaryX, currentY)
        .text(`₹${bill.totalAmount.toFixed(2)}`, summaryX + 100, currentY);
 
@@ -411,13 +420,13 @@ export class PDFService {
     const margins = doc.page.margins;
 
     doc.fontSize(12)
-       .font('Helvetica-Bold')
+       .font('NotoSans-Bold')
        .text('Payment Information:', margins.left, startY);
 
     let currentY = startY + 20;
 
     doc.fontSize(10)
-       .font('Helvetica')
+       .font('NotoSans')
        .text(`Payment Status: ${bill.paymentStatus.toUpperCase()}`, margins.left, currentY);
 
     if (bill.paymentMethod) {
@@ -454,7 +463,7 @@ export class PDFService {
 
     // Footer text
     doc.fontSize(8)
-       .font('Helvetica')
+       .font('NotoSans')
        .text('Thank you for dining with us!', margins.left, footerY + 10, { align: 'center' })
        .text(`Generated on ${new Date().toLocaleString()}`, margins.left, footerY + 25, { align: 'center' });
   }
