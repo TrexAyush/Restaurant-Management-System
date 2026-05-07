@@ -20,7 +20,8 @@ import {
   Divider,
   Alert,
   CircularProgress,
-  Autocomplete
+  Autocomplete,
+  Chip
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -74,7 +75,7 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
       setLoading(true);
       const [tables, menuResponse] = await Promise.all([
         TableService.getAvailableTables(),
-        menuService.getMenuItems({ isAvailable: true })
+        menuService.getMenuItems({ isAvailable: true }, { limit: 100 })
       ]);
       
       setAvailableTables(tables);
@@ -238,8 +239,11 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
                 <Autocomplete
                   sx={{ flexGrow: 1 }}
-                  options={menuItems}
+                  options={[...menuItems].sort((a, b) =>
+                    (a.category?.name ?? '').localeCompare(b.category?.name ?? '')
+                  )}
                   getOptionLabel={(option) => `${option.name} - ₹${option.price.toFixed(2)}`}
+                  groupBy={(option) => option.category?.name ?? 'Other'}
                   value={selectedMenuItem}
                   onChange={(_, newValue) => setSelectedMenuItem(newValue)}
                   renderInput={(params) => (
@@ -249,14 +253,35 @@ export const CreateOrderDialog: React.FC<CreateOrderDialogProps> = ({
                       variant="outlined"
                     />
                   )}
+                  renderGroup={(params) => (
+                    <li key={params.key}>
+                      <Box
+                        sx={{
+                          position: 'sticky',
+                          top: '-8px',
+                          px: 2,
+                          py: 0.75,
+                          backgroundColor: 'grey.100',
+                          borderBottom: '1px solid',
+                          borderColor: 'divider',
+                          zIndex: 1,
+                        }}
+                      >
+                        <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                          {params.group}
+                        </Typography>
+                      </Box>
+                      <ul style={{ padding: 0, margin: 0 }}>{params.children}</ul>
+                    </li>
+                  )}
                   renderOption={(props, option) => (
                     <li {...props}>
-                      <Box>
+                      <Box sx={{ py: 0.25 }}>
                         <Typography variant="subtitle2">
                           {option.name}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {option.category?.name} - ₹{option.price.toFixed(2)}
+                          ₹{option.price.toFixed(2)}
                         </Typography>
                         {option.description && (
                           <Typography variant="caption" color="text.secondary">
