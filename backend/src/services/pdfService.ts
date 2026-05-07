@@ -320,7 +320,7 @@ export class PDFService {
     for (const item of order.items) {
       const itemTotal = item.quantity * item.unitPrice;
 
-      doc.text(`Menu Item ${item.menuItemId.substring(0, 8)}`, margins.left, currentY, {
+      doc.text(item.menuItemName || `Item ${item.menuItemId.substring(0, 8)}`, margins.left, currentY, {
         width: colWidths.item - 10,
         ellipsis: true
       });

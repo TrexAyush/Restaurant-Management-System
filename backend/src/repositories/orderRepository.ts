@@ -31,7 +31,7 @@ export class OrderRepository {
 
     if (!order) return null;
 
-    const items = await this.getOrderItems(id);
+    const items = await this.getOrderItemsWithNames(id);
     return this.mapDbOrderToModel(order, items);
   }
 
@@ -456,6 +456,29 @@ export class OrderRepository {
       id: item.id,
       orderId: item.order_id,
       menuItemId: item.menu_item_id,
+      quantity: item.quantity,
+      unitPrice: parseFloat(item.unit_price),
+      specialInstructions: item.special_instructions,
+      createdAt: new Date(item.created_at),
+      updatedAt: new Date(item.updated_at)
+    }));
+  }
+
+  private async getOrderItemsWithNames(orderId: string): Promise<OrderItem[]> {
+    const items = await knex(this.orderItemsTable)
+      .select(
+        'order_items.*',
+        'menu_items.name as menu_item_name'
+      )
+      .leftJoin('menu_items', 'order_items.menu_item_id', 'menu_items.id')
+      .where('order_items.order_id', orderId)
+      .orderBy('order_items.created_at', 'asc');
+
+    return items.map((item: any) => ({
+      id: item.id,
+      orderId: item.order_id,
+      menuItemId: item.menu_item_id,
+      menuItemName: item.menu_item_name ?? undefined,
       quantity: item.quantity,
       unitPrice: parseFloat(item.unit_price),
       specialInstructions: item.special_instructions,

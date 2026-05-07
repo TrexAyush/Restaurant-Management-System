@@ -4,6 +4,7 @@ export interface OrderItem {
   id: string;
   orderId: string;
   menuItemId: string;
+  menuItemName?: string;
   quantity: number;
   unitPrice: number;
   specialInstructions?: string;
