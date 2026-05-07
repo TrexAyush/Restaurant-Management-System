@@ -229,7 +229,9 @@ export class MenuService {
   }
 
   /**
-   * Delete menu item (hard delete from database)
+   * Delete menu item.
+   * If the item is referenced in any orders, soft-delete it (mark unavailable)
+   * so order history is preserved. Otherwise, hard-delete it from the database.
    */
   async deleteMenuItem(id: string): Promise<void> {
     // Check if menu item exists
@@ -238,7 +240,12 @@ export class MenuService {
       throw new Error('Menu item not found');
     }
 
-    await menuRepository.hardDeleteMenuItem(id);
+    const referencedInOrders = await menuRepository.isMenuItemReferencedInOrders(id);
+    if (referencedInOrders) {
+      await menuRepository.deleteMenuItem(id); // soft delete (is_available = false)
+    } else {
+      await menuRepository.hardDeleteMenuItem(id);
+    }
   }
 
   /**

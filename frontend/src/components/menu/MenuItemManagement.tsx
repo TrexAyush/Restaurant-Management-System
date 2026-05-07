@@ -247,7 +247,7 @@ export const MenuItemManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
     setConfirmDialog({
       open: true,
       title: 'Delete Menu Item',
-      message: `Are you sure you want to delete "${item.name}"? This will make it unavailable but preserve it in order history.`,
+      message: `Are you sure you want to delete "${item.name}"? If this item appears in past orders it will be hidden from the menu; otherwise it will be permanently removed.`,
       onConfirm: async () => {
         setConfirmDialog(prev => ({ ...prev, open: false }));
         try {
