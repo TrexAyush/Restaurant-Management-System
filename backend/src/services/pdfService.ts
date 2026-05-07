@@ -454,7 +454,8 @@ export class PDFService {
   ): void {
     const margins = doc.page.margins;
     const pageHeight = doc.page.height;
-    const footerY = pageHeight - margins.bottom - 30;
+    // Reserve enough space: rule (0) + line1 (12) + line2 (12) + font size buffer (10) = ~50
+    const footerY = pageHeight - margins.bottom - 50;
 
     // Footer line
     doc.moveTo(margins.left, footerY)
@@ -464,8 +465,8 @@ export class PDFService {
     // Footer text
     doc.fontSize(8)
        .font('NotoSans')
-       .text('Thank you for dining with us!', margins.left, footerY + 10, { align: 'center' })
-       .text(`Generated on ${new Date().toLocaleString()}`, margins.left, footerY + 25, { align: 'center' });
+       .text('Thank you for dining with us!', margins.left, footerY + 12, { align: 'center' })
+       .text(`Generated on ${new Date().toLocaleString()}`, margins.left, footerY + 28, { align: 'center' });
   }
 
   /**

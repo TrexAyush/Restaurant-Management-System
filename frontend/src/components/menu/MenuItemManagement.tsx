@@ -530,7 +530,7 @@ export const MenuItemManagement: React.FC<{ readOnly?: boolean }> = ({ readOnly 
               required
               inputProps={{ min: 0, step: 0.01 }}
               InputProps={{
-                startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                startAdornment: <InputAdornment position="start">₹</InputAdornment>,
               }}
               error={!!validationErrors.price}
               helperText={validationErrors.price || 'Enter the price for this item'}
